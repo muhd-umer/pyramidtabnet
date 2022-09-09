@@ -7,8 +7,7 @@ external patching of tables to generate
             new data
 """
 
-from turtle import color
-from utils import *
+from bbox_utils import *
 import os
 import os.path as osp
 import argparse

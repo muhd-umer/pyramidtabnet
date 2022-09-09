@@ -21,7 +21,7 @@ To get started, clone this repo and install the required dependencies.
 - **Table Structure Recognition** - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website.
 
 ### Table Detection
-Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provide the fine-tuned weights. The instructions to reproduce the results can be found at detection/README.md.
+Yet to be decided.
 
 | Backbone | Arch |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|

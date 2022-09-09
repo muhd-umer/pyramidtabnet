@@ -9,7 +9,8 @@
 - For evaluation purposes, we provide the `COCO JSON` annotations as well as the original images of the cTDaR test set, so you can run the [evaluation](https://github.com/muhd-umer/PyramidTabNet/edit/main/detection/README.md#evaluation) section rifght after downloading the weights.
 
 ## Run
-Following sections provide instructions to evaluate and/or train PyramidTabNet on your own data.
+Following sections provide instructions to evaluate and/or train PyramidTabNet on your own data.<br/>
+*Note: It is recommended to execute the scripts in this directory from the project root in order to utilize the relative paths to the test set.*
 ### Evaluation
 - Download link of fine-tuned weights are available in [this table](https://github.com/muhd-umer/PyramidTabNet#table-detection).
 - Execute `test.py` with the appropriate command line arguments. Example usage:
@@ -19,7 +20,16 @@ python detection/test.py --config-file path/to/config/file \
                          --data-dir data/cTDaR/ \
                          --device "cuda"
 ```
-*Note: It is recommended to execute this script from the project root in order to utilize the relative paths to the test set.*
+
+### Inference
+- To perform inference (visualize detections/extract bounding box coordinates of tables) on a single image, execute `inference.py`.
+- Example usage:
+```python
+python detection/inference.py --config-file path/to/config/file \
+                              --input-img path/to/input/image
+                              --det-weights path/to/finetunes/checkpoint \
+                              --device "cuda"
+```
 
 ### Training
 - Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️

@@ -118,18 +118,17 @@ class KMeans:
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-f", "--folder", required=True, help="Path to image folder.")
-ap.add_argument("-k", "--kmeans", type=int, default=5, help="Number of clusters.")
-ap.add_argument("-r", "--resample", type=int, default=256, help="Resampling size.")
+ap.add_argument("--f", "--folder", required=True, help="Path to image folder.")
+ap.add_argument("--k", "--kmeans", type=int, default=5, help="Number of clusters.")
+ap.add_argument("--r", "--resample", type=int, default=256, help="Resampling size.")
 ap.add_argument(
-    "-s",
-    "--size",
+    "--s",
     default=False,
     action="store_true",
     help="Use size as a feature for clustering.",
 )
 ap.add_argument(
-    "-m", "--move", default=False, action="store_true", help="Move instead of copying."
+    "--m", "--move", default=False, action="store_true", help="Move instead of copying."
 )
 args = vars(ap.parse_args())
 types = ("*.jpg", "*.JPG", "*.png", "*.jpeg")

@@ -130,3 +130,4 @@ dmypy.json
 
 data/cTDaR/train/
 data/cTDaR/train.json
+models/

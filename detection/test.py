@@ -74,7 +74,7 @@ def parse_args():
         nargs="+",
         help="Evaluation metrics; depend on your dataset. "
         "'bbox', 'segm' for COCO Dataset",
-        required=True,
+        required=False,
     )
     parser.add_argument(
         "--save-images",

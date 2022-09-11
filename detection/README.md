@@ -1,6 +1,6 @@
 # Table Detection
 <div align="center">
-  <img src="https://github.com/muhd-umer/PyramidTabNet/blob/main/resources/detections.png" width="1000"/>
+  <img src="https://github.com/muhd-umer/PyramidTabNet/blob/main/resources/detections.jpg" width="1000"/>
   <p align="center">Model outputs on ICDAR 2019 cTDaR test set samples</p1>
 </div>
 

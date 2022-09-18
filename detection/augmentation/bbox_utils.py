@@ -65,18 +65,17 @@ def get_nearness(a, b, factor):
     else:
         return False
 
+
 def get_bbox(table_mask):
     """
-    Get bounding box coordinates from a 
+    Get bounding box coordinates from a
         mask, we filter out contours
         with area less than 50 so
         noise isnt marked as a mask
     """
     table_mask = table_mask.astype(np.uint8)
 
-    contours, _ = cv2.findContours(
-        table_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
-    )
+    contours, _ = cv2.findContours(table_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     table_contours = []
     boxes = []
 
@@ -113,7 +112,7 @@ def get_center(bbox):
 
 def expand_mask(mask, bbox_list):
     """
-    Expands masl width to remove extra 
+    Expands masl width to remove extra
         unnecessary text
     Helps model filtering out text
     """
@@ -142,3 +141,53 @@ def get_paste_location(mask):
     paste_location = loc_bbox[area_bbox.index(max(area_bbox))]
 
     return paste_location
+
+
+def get_cutoff(thresh, ksize):
+    """
+    Get a cutoff value for contour detection
+        i.e. the point where a table is cut into two
+    """
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize)
+    dets = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
+    cnts = cv2.findContours(dets, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    try:
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+        for c in range(len(cnts)):
+            if c == ((len(cnts) // 2 - 1)):
+                cutoff = cnts[c][0][0][1]
+                return cutoff
+    except:
+        pass
+
+
+def resize_to_width(image_a, image_b):
+    """
+    Resize image_b to the width of image_a keeping
+        the aspect ratio
+    """
+    if get_nearness(image_a.shape[1], image_b.shape[1], 75):
+        scale_percent = round(image_a.shape[1] / image_b.shape[1], 2)
+        width = int(image_a.shape[1])
+        height = int(image_b.shape[0] * scale_percent)
+        dim = (width, height)
+        image_b = cv2.resize(image_b, dim, interpolation=cv2.INTER_AREA)
+        return image_b
+    else:
+        return np.array([[0]])
+
+
+def resize_to_height(image_a, image_b):
+    """
+    Resize image_b to the height of image_a keeping
+        the aspect ratio
+    """
+    if get_nearness(image_a.shape[0], image_b.shape[0], 75):
+        scale_percent = round(image_a.shape[1] / image_b.shape[1], 2)
+        width = int(image_b.shape[1] * scale_percent)
+        height = int(image_a.shape[0])
+        dim = (width, height)
+        image_b = cv2.resize(image_b, dim, interpolation=cv2.INTER_AREA)
+        return image_b
+    else:
+        return np.array([[0]])

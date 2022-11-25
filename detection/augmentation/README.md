@@ -14,7 +14,7 @@ python clusters.py --f path/to/images/to/cluster \
                    --m  # move instead of copying
 ```
 ### Fusion
-Complex table images are fused together to form new tables to be fed into the patching pipeline. This process can be characterized by the following pipeline:
+Complex table images are fused together to form new tables to be fed into the patching pipeline. Following steps are employed in order to fuse two table images from the same cluster:
 - Find the horizontal/vertical contours on a random batch (i.e., n=2) of tables from the input directory and find a cutoff point. This point is used to split the tab into two vertically/horizontally.
 - Concatenate the two images to generate a new one.
 You can generate mix of tables by executing fusion.py. Example usage:

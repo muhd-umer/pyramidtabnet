@@ -2,8 +2,8 @@
 MIT License:
 Copyright (c) 2022 Muhammad Umer
 
-Data generator script for joined 
-    tables after detecting contours
+Data generator script for fused 
+    tables after forming clusters
 
 Following rules are observed:
 Rules of patching:
@@ -115,7 +115,7 @@ def main():
                     cutoff_b = get_cutoff(thresh_b, ksize)
 
                     """
-                    Joiner conditions, follows the Rules defined at the beginning
+                    Fusion conditions, follows the Rules defined at the beginning
                         of this file
                     """
                     if args.type == "horizontal":

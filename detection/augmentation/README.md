@@ -1,5 +1,5 @@
 # Data Augmentation
-This directory contains data augmentation scripts for PyramidTabNet. An input directory is first clustered to reduce variancy in data augmentation. This process is followed by joining of tables within the clusters to create new table images. Lastly, we patch the tables generated onto the training set documents to pass onto the model for training.
+This directory contains data augmentation scripts for PyramidTabNet. An input directory is first clustered to reduce variancy in data augmentation. This process is followed by fusion of tables within the clusters to create new table images. Lastly, we patch the tables generated onto the training set documents to pass onto the model for training.
 
 ## Scripts to Generate Augmented Data
 
@@ -13,13 +13,13 @@ python clusters.py --f path/to/images/to/cluster \
                    --k number-of-clusters \  # must be an integer
                    --m  # move instead of copying
 ```
-### Joining
-Joining of tables to input images can be characterized by the following pipeline:
-- Find the horizontal/vertical contours on a random batch (n=2) of tables from the input directory and find a cutoff point. This point is used to split the tab into two vertically/horizontally.
+### Fusion
+Complex table images are fused together to form new tables to be fed into the patching pipeline. This process can be characterized by the following pipeline:
+- Find the horizontal/vertical contours on a random batch (i.e., n=2) of tables from the input directory and find a cutoff point. This point is used to split the tab into two vertically/horizontally.
 - Concatenate the two images to generate a new one.
-You can generate mix of tables by executing joiner.py. Example usage:
+You can generate mix of tables by executing fusion.py. Example usage:
 ```python
-python joiner.py --input-dir path/to/training/images \
+python fusion.py --input-dir path/to/training/images \
                  --output-dir path/to/generated/data \
                  --num-samples integer-value
                  # for optimum results, 

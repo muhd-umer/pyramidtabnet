@@ -1,9 +1,9 @@
-# ============================================================
-# Copyright (c) OpenMMLab. All rights reserved.
-#
-# Training Script for Table Detection - Refactored with black
-# Modified the argument section for more defined help
-# ============================================================
+"""
+Copyright (c) OpenMMLab. All rights reserved.
+
+Training Script for Table Detection - Refactored with black
+Modified the argument section for more defined help
+"""
 
 import warnings
 

@@ -431,7 +431,7 @@ def calc_table_score(result_path):
         wF1 = calc(F1)
 
         print(
-            colored(f"\nAverage Weighted F1: {round(wF1, 3)}", "green", attrs=["bold"])
+            colored(f"\nAverage Weighted F1: {round(wF1, 4)}", "green", attrs=["bold"])
         )
 
         return {

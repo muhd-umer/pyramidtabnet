@@ -23,20 +23,20 @@ To get started, clone this repo and install the required dependencies.
 ### Table Detection
 Yet to be decided.
 
-| Backbone | Arch |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PVT v2 B3 | Cascade Mask R-CNN | | | | | | |
-| PVT v2 B4 | Cascade Mask R-CNN | | | | | | |
-| PVT v2 B5 | Cascade Mask R-CNN | | | | | | |
+| Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| PTN-S | | | | | | |
+| PTN-B | | | | | | |
+| PTN-L | | | | | | |
 
 ### Table Structure Recognition
 Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provide the fine-tuned weights. The instructions to reproduce the results can be found at recognition/README.md.
 
-| Backbone | Arch |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PVT v2 B3 | Cascade Mask R-CNN | | | | | | |
-| PVT v2 B4 | Cascade Mask R-CNN | | | | | | |
-| PVT v2 B5 | Cascade Mask R-CNN | | | | | | |
+Model |  Weighted F1 | | | | | Checkpoint |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| PTN-S | | | | | | |
+| PTN-B | | | | | | |
+| PTN-L | | | | | | |
 
 ## Common Issues
 - Machines running variants of Microsoft Windows encounter issues with mmcv imports. Follow the [installation guide](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) on the official MMCV documentation to resolve such issues. Example:

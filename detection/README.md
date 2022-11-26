@@ -26,7 +26,7 @@ python detection/test.py --config-file path/to/config/file \
 - Example usage:
 ```python
 python detection/inference.py --config-file path/to/config/file \
-                              --input-img path/to/input/image
+                              --input-img path/to/input/image \
                               --det-weights path/to/finetunes/checkpoint \
                               --device "cuda"
 ```

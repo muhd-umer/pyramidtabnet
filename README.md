@@ -21,7 +21,7 @@ To get started, clone this repo and install the required dependencies.
 - **Table Structure Recognition** - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website.
 
 ### Table Detection
-The results of table detection on ICDAR 2019 cTDaR are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md).
+The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md).
 
 | Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|

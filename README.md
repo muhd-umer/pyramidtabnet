@@ -30,7 +30,7 @@ The results of table detection on ICDAR 2019 cTDaR are shown below. The instruct
 ### Table Structure Recognition
 Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provide the fine-tuned weights. The instructions to reproduce the results can be found at recognition/README.md.
 
-Model |  Weighted F1 | | | | | Checkpoint |
+| Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | PyramidTabNet | | | | | | |
 

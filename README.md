@@ -25,7 +25,6 @@ Yet to be decided.
 
 | Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PTN-S | | | | | | |
 | PTN-B | | | | | | |
 | PTN-L | | | | | | |
 
@@ -34,7 +33,6 @@ Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provi
 
 Model |  Weighted F1 | | | | | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PTN-S | | | | | | |
 | PTN-B | | | | | | |
 | PTN-L | | | | | | |
 

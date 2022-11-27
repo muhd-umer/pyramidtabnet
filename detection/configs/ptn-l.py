@@ -3,7 +3,7 @@ model = dict(
     backbone=dict(
         type="PyramidVisionTransformerV2",
         embed_dims=64,
-        num_layers=[3, 4, 18, 3],
+        num_layers=[3, 8, 27, 3],
         init_cfg=None,
     ),
     neck=dict(
@@ -443,7 +443,7 @@ data = dict(
     ),
 )
 evaluation = dict(interval=4, metric=["bbox", "segm"])
-optimizer = dict(type="AdamW", lr=0.0001, weight_decay=0.0001)
+optimizer = dict(type="AdamW", lr=7.142857142857143e-05, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)
 lr_config = dict(
     policy="step", warmup="linear", warmup_iters=2000, warmup_ratio=0.001, step=[27, 33]

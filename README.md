@@ -38,8 +38,8 @@ The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instru
 Subject to change.
 
 | Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PyramidTabNet | | | | | | | |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| PyramidTabNet | | | | | |
 
 ## Common Issues
 - Machines running variants of Microsoft Windows encounter issues with mmcv imports. Follow the [installation guide](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) on the official MMCV documentation to resolve such issues. Example:

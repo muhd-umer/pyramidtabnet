@@ -25,7 +25,7 @@ The results of table detection on ICDAR 2019 cTDaR are shown below. The instruct
 
 | Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PyramidTabNet | 98.45 | 98.45 | 97.57 | 94.47 | 97.02 | [Weights (.pth)](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) |
+| PyramidTabNet | 97.02 | 98.45 | 98.45 | 97.57 | 94.47 | [Weights (.pth)](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) |
 
 ### Table Structure Recognition
 Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provide the fine-tuned weights. The instructions to reproduce the results can be found at recognition/README.md.

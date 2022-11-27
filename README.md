@@ -25,16 +25,14 @@ Yet to be decided.
 
 | Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PTN-B | | | | | | |
-| PTN-L | | | | | | |
+| PyramidTabNet | 98.45 | 98.45 | 97.57 | 94.47 | 97.02 |
 
 ### Table Structure Recognition
 Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provide the fine-tuned weights. The instructions to reproduce the results can be found at recognition/README.md.
 
 Model |  Weighted F1 | | | | | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PTN-B | | | | | | |
-| PTN-L | | | | | | |
+| PyramidTabNet | | | | | | |
 
 ## Common Issues
 - Machines running variants of Microsoft Windows encounter issues with mmcv imports. Follow the [installation guide](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) on the official MMCV documentation to resolve such issues. Example:

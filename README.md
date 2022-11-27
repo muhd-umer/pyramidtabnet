@@ -21,11 +21,11 @@ To get started, clone this repo and install the required dependencies.
 - **Table Structure Recognition** - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website.
 
 ### Table Detection
-Yet to be decided.
+The results of table detection on ICDAR 2019 cTDaR are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md).
 
 | Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PyramidTabNet | 98.45 | 98.45 | 97.57 | 94.47 | 97.02 |
+| PyramidTabNet | 98.45 | 98.45 | 97.57 | 94.47 | 97.02 | [Weights (.pth)](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) |
 
 ### Table Structure Recognition
 Evaluation summary on `cTDaR - TRACK A Modern` is presented below. We also provide the fine-tuned weights. The instructions to reproduce the results can be found at recognition/README.md.

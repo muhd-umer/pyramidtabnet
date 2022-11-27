@@ -23,6 +23,8 @@ To get started, clone this repo and install the required dependencies.
 ### Table Detection
 The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md). The weights (.pth) file are embedded into the model column of the following table.
 
+<div align="center">
+
 | Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | DeiT-B | 93.07 | 95.51 | 94.61 | 93.48 | 89.89 |
@@ -34,12 +36,18 @@ The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instru
 | DiT-L (Cascade) | 96.29 | 97.89 | 97.22 | 97.00 | 93.88 |
 | [PyramidTabNet](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) | 97.02 | 98.45 | 98.45 | 97.57 | 94.47 |
 
+</div>
+
 ### Table Structure Recognition
 Subject to change.
+
+<div align="center">
 
 | Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | PyramidTabNet | | | | | |
+
+</div>
 
 ## Common Issues
 - Machines running variants of Microsoft Windows encounter issues with mmcv imports. Follow the [installation guide](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) on the official MMCV documentation to resolve such issues. Example:

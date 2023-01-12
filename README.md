@@ -30,18 +30,33 @@ python train.py path/to/config/file --gpu-id 0
 *Note: A distributed training script is not bundled with this repo, however, you can refer to the official MMDetection repo for one.*
 
 ### Table Detection
-The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md).
+The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md). The weights (.pth) file are embedded into the model column of the following table.
 
-| Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PyramidTabNet | 97.02 | 98.45 | 98.45 | 97.57 | 94.47 | [Weights (.pth)](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) |
+<div align="center">
+
+| Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| DeiT-B | 93.07 | 95.51 | 94.61 | 93.48 | 89.89 |
+| BEiT-B | 94.25 | 96.06 | 95.39 | 95.16 | 91.34 |
+| MAE-B | 93.81 | 96.47 | 95.58 | 94.48 | 90.07 |
+| DiT-B | 94.74 | 96.29 | 95.61 | 95.39 | 92.46 |
+| DiT-L | 95.50 | 98.00 | 97.56 | 96.23 | 91.57 |
+| DiT-B (Cascade) | 95.85 | 97.33 | 96.89 | 96.67 | 93.33 |
+| DiT-L (Cascade) | 96.29 | 97.89 | 97.22 | 97.00 | 93.88 |
+| [PyramidTabNet](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) | 97.02 | 98.45 | 98.45 | 97.57 | 94.47 |
+
+</div>
 
 ### Table Structure Recognition
 Subject to change.
 
-| Model |  Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> | Checkpoint |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| PyramidTabNet | | | | | | |
+<div align="center">
+
+| Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| PyramidTabNet | | | | | |
+
+</div>
 
 ## Common Issues
 - Machines running variants of Microsoft Windows encounter issues with mmcv imports. Follow the [installation guide](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) on the official MMCV documentation to resolve such issues. Example:

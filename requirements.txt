@@ -1,5 +1,5 @@
 torch==1.10.0
-torchvision==0.11.0
+torchvision==0.11.3
 albumentations==0.4.6
 torchinfo==1.7.0
 termcolor==1.1.0
@@ -7,5 +7,5 @@ tabulate==0.8.10
 opencv-python==4.5.4
 glob2==0.7
 tqdm==4.64.0
-Pillow==9.0.1
+Pillow>=9.2.0
 pascal-voc-writer==0.1.4

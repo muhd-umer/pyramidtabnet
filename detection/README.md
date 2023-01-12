@@ -16,7 +16,7 @@ Following sections provide instructions to evaluate and/or train PyramidTabNet o
 - Execute `test.py` with the appropriate command line arguments. Example usage:
 ```python
 python detection/test.py --config-file path/to/config/file \
-                         --det-weights path/to/finetunes/checkpoint \
+                         --det-weights path/to/finetuned/checkpoint \
                          --data-dir data/cTDaR/ \
                          --device "cuda"
 ```
@@ -27,18 +27,10 @@ python detection/test.py --config-file path/to/config/file \
 ```python
 python detection/inference.py --config-file path/to/config/file \
                               --input-img path/to/input/image \
-                              --det-weights path/to/finetunes/checkpoint \
+                              --det-weights path/to/finetuned/checkpoint \
                               --device "cuda"
 ```
 
-### Training
-- Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️
-- Before firing up the `train.py` script, make sure to configure the data keys in the config file 
-- *Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys.*
-```python
-python detection/train.py path/to/config/file --gpu-id 0
-```
-*Note: A distributed training script is not bundled with this repo, however, you can refer to the official MMDetection repo for one.*
 ## Acknowledgements
 The [MMDetection](https://github.com/open-mmlab/mmdetection) team for creating their amazing framework to push the state of the art computer vision research and enabling us to experiment and build various models very easily.
 <p align="center">

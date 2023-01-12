@@ -20,6 +20,15 @@ To get started, clone this repo and install the required dependencies.
 
 - **Table Structure Recognition** - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website.
 
+### Training
+- Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️
+- Before firing up the `train.py` script, make sure to configure the data keys in the config file 
+- *Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys.*
+```python
+python train.py path/to/config/file --gpu-id 0
+```
+*Note: A distributed training script is not bundled with this repo, however, you can refer to the official MMDetection repo for one.*
+
 ### Table Detection
 The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md).
 

@@ -62,7 +62,7 @@ python train.py path/to/config/file --gpu-id 0
 
 ## Weights & Metrics
 ### Table Detection
-The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/model](model/README.md). The weights (.pth) file are embedded into the model column of the following table.
+The results of table detection on `ICDAR 2019 cTDaR` are shown below. The weights (.pth) file are embedded into the model column of the following table.
 
 <div align="center">
 

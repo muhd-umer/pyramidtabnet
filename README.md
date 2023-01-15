@@ -43,11 +43,11 @@ python run.py --config-file path/to/config/file \
 ```
 
 ### Detection Inference
-- To perform only table detection on a single image, execute `inference.py`. Example usage:
+- To perform either detection or stucture recognition on a single image, execute `inference.py`. Example usage:
 ```python
 python model/inference.py --config-file path/to/config/file \
                           --input-img path/to/input/image \
-                          --det-weights path/to/finetuned/checkpoint \
+                          --weights path/to/finetuned/checkpoint \
                           --device "cuda"
 ```
 

@@ -10,7 +10,12 @@ This directory contains the config and implementation files for the proposed arc
 ## Results
 <div align="center">
   <img src="../resources/detections.jpg" width="1000"/>
-  <p align="center">Model outputs on ICDAR 2019 cTDaR test set samples</p1>
+  <p align="center">Model detection output on ICDAR 2019 cTDaR test set samples</p1>
+</div>
+
+<div align="center">
+  <img src="../resources/structure.png" width="1000"/>
+  <p align="center">Model structure output on ICDAR 2013 sample</p1>
 </div>
 
 ## Acknowledgements

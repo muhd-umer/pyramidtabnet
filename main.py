@@ -180,7 +180,7 @@ if __name__ == "__main__":
             "cyan",
         )
     )
-    table_result, table_boxes = get_preds(ori_img, det_model, 0.5)
+    table_result, table_boxes = get_preds(ori_img, det_model, 0.8)
 
     # Exit the inference script if no tables are detected.
     if (table_result, table_boxes) == (0, 0):

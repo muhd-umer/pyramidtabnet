@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<annotation>
+   <folder>icdar</folder>
+   <filename>eu-025_2.xml</filename>
+   <path>icdar/train/gt/eu-025_2.xml</path>
+   <source>
+      <database>Unknown</database>
+   </source>
+   <size>
+      <width>1751</width>
+      <height>2480</height>
+      <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>234</xmin>
+         <ymin>324</ymin>
+         <xmax>1520</xmax>
+         <ymax>1164</ymax>
+      </bndbox>
+   </object>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>235</xmin>
+         <ymin>1338</ymin>
+         <xmax>1511</xmax>
+         <ymax>2174</ymax>
+      </bndbox>
+   </object>
+</annotation>

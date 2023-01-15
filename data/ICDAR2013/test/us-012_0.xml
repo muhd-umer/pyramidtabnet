@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<annotation>
+   <folder>icdar</folder>
+   <filename>us-012_0.xml</filename>
+   <path>icdar/test/gt/us-012_0.xml</path>
+   <source>
+      <database>Unknown</database>
+   </source>
+   <size>
+      <width>2550</width>
+      <height>3301</height>
+      <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>312</xmin>
+         <ymin>490</ymin>
+         <xmax>2232</xmax>
+         <ymax>2005</ymax>
+      </bndbox>
+   </object>
+</annotation>

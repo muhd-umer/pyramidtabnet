@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<annotation>
+   <folder>icdar</folder>
+   <filename>eu-027_2.xml</filename>
+   <path>icdar/val/gt/eu-027_2.xml</path>
+   <source>
+      <database>Unknown</database>
+   </source>
+   <size>
+      <width>2481</width>
+      <height>3508</height>
+      <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>315</xmin>
+         <ymin>645</ymin>
+         <xmax>2135</xmax>
+         <ymax>2078</ymax>
+      </bndbox>
+   </object>
+</annotation>

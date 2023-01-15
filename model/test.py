@@ -3,7 +3,7 @@ Copyright (c) OpenMMLab. All rights reserved.
 
 Modified by Muhammad Umer, Author of PyramidTabNet
 
-Evaluation script for the table detector. Removed most, if not all, of distri-
+Evaluation script for the table analysis. Removed most, if not all, of distri-
 buted inference capibilities as the test dataset is very small.
 Reference: https://github.com/open-mmlab/mmdetection/blob/master/tools/test.py
 """

@@ -29,12 +29,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate your table detector.")
     parser.add_argument(
         "--input-dir",
-        help="Path to files on which you want to patch tables.)",
+        help="Path to files for generating new tables.)",
         required=True,
     )
     parser.add_argument(
         "--output-dir",
-        help="Path to output where picke file as well as metrics are saved.",
+        help="Path to output where fused tables are saved.",
         default="joined/",
         required=False,
     )

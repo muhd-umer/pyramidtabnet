@@ -5,13 +5,12 @@ This directory contains data augmentation scripts for PyramidTabNet. An input di
 
 ### K-Means Clustering
 - We cluster the input images to patch (from the training set) as well as table images (to patch onto the training images) collected from external sources as they make patching more consistent and reduces variancy, *i.e. a document without any colored tables may get patched with a colored one, leading to undesired learnings by the model.*
-- We observed an absolute increase of `+0.0143` to the weighted average F1 score on table detection with `PVT v2 B4` as a backbone, and thus, decided to stick with clustering.
 
 You can cluster data by executing `clusters.py`. Example usage:
 ```python
-python clusters.py --f path/to/images/to/cluster \
-                   --k number-of-clusters \  # must be an integer
-                   --m  # move instead of copying
+python augmentation/clusters.py --f path/to/images/to/cluster \
+                                --k number-of-clusters \  # must be an integer
+                                --m  # move instead of copying
 ```
 ### Fusion
 Complex table images are fused together to form new tables to be fed into the patching pipeline. Following steps are employed in order to fuse two table images from the same cluster:
@@ -19,11 +18,11 @@ Complex table images are fused together to form new tables to be fed into the pa
 - Concatenate the two images to generate a new one.
 You can generate mix of tables by executing fusion.py. Example usage:
 ```python
-python fusion.py --input-dir path/to/training/images \
-                 --output-dir path/to/generated/data \
-                 --num-samples integer-value
-                 # for optimum results, 
-                 # num-samples = 1/3 * len(input-dir)
+python augmentation/fusion.py --input-dir path/to/training/images \
+                              --output-dir path/to/generated/data \
+                              --num-samples integer-value
+                              # for optimum results, 
+                              # num-samples = 1/3 * len(input-dir)
 ```
 
 ### Patching
@@ -34,8 +33,8 @@ Patching of tables to input images can be characterized by the following pipelin
 - Generate output masks and PASCAL-VOC annotations.
 You can generate augmented data by executing patcher.py. Example usage:
 ```python
-python patcher.py --input-dir path/to/training/images \
-                  --input-masks path/to/training/masks \
-                  --patch-dir path/to/tables/to/patch \
-                  --output-dir path/to/generated/data
+python augmentation/patcher.py --input-dir path/to/training/images \
+                               --input-masks path/to/training/masks \
+                               --patch-dir path/to/tables/to/patch \
+                               --output-dir path/to/generated/data
 ```

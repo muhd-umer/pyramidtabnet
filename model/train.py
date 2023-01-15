@@ -1,7 +1,7 @@
 """
 Copyright (c) OpenMMLab. All rights reserved.
 
-Training Script for Table Detection - Refactored with black
+Training Script for Table Analysis - Refactored with black
 Modified the argument section for more defined help
 """
 
@@ -39,8 +39,10 @@ from mmdet.utils import (
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train your detector.")
-    parser.add_argument("--config-file", help="Train config file path.")
-    parser.add_argument("--work-dir", help="Path to logs and save directory.")
+    parser.add_argument("--config-file", help="Train config file path.", required=True)
+    parser.add_argument(
+        "--work-dir", help="Path to logs and save directory.", required=True
+    )
     parser.add_argument("--resume-from", help="Path to checkpoint to resume from.")
     parser.add_argument(
         "--auto-resume",

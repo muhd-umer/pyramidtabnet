@@ -12,7 +12,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-Inference Script to Detect Tables - Refactored with black
+Inference Script for Table Detection
 Outputs original image with bounding boxes as well as a text file containing
 bounding box coordinates. Cropped table images are also saved.
 """

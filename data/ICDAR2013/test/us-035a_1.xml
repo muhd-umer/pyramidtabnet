@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<annotation>
+   <folder>icdar</folder>
+   <filename>us-035a_1.xml</filename>
+   <path>icdar/train/gt/us-035a_1.xml</path>
+   <source>
+      <database>Unknown</database>
+   </source>
+   <size>
+      <width>2550</width>
+      <height>3301</height>
+      <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>374</xmin>
+         <ymin>516</ymin>
+         <xmax>1972</xmax>
+         <ymax>1520</ymax>
+      </bndbox>
+   </object>
+</annotation>

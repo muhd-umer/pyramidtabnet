@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<annotation>
+   <folder>icdar</folder>
+   <filename>eu-009a_0.xml</filename>
+   <path>icdar/train/gt/eu-009a_0.xml</path>
+   <source>
+      <database>Unknown</database>
+   </source>
+   <size>
+      <width>2480</width>
+      <height>3509</height>
+      <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>555</xmin>
+         <ymin>1307</ymin>
+         <xmax>1950</xmax>
+         <ymax>2300</ymax>
+      </bndbox>
+   </object>
+</annotation>

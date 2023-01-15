@@ -1,6 +1,6 @@
 # PyramidTabNet
 ## An End-to-End Approach to Table Analysis in Scanned Documents
-Transformers have presented encouraging progress in the domain of computer vision for the past several years. Our proposed approach is based on the improved baselines of convolution-less Pyramid Vision Transformer (PVT v2) paired with novel data augmentation techniques in the field of document analysis. Notably, our proposed pipeline achieves comparable or better results on various publicly available table analysis datasets than recent works such as Document Image Transformer (DiT).
+Transformers have been making great strides in the field of computer vision in recent years, and their impact has been particularly noteworthy in the domain of document analysis. In this paper, we introduce PyramidTabNet (PTN), a method that builds upon the performance of the convolution-less Pyramid Vision Transformer (PVT v2) by incorporating a structural modification data augmentation technique before training the architecture. Specifically, the augmentation process consists of three sequential pipelines, namely, clustering, fusion, and patching, for generation of new document images as well as for masking text. Notably, our proposed pipeline surpasses other augmentation strategies on all fronts, and achieves comparable or better results than recent works on various publicly available table analysis datasets.
 
 ## Dependencies
 *It is recommended to create a new virtual environment so that updates/downgrades of packages do not break other projects.*
@@ -12,16 +12,57 @@ Transformers have presented encouraging progress in the domain of computer visio
 pip install -r requirements.txt
 ```
 
-## Installation / Run
-To get started, clone this repo and install the required dependencies.
+## Datasets
+- Table Detection - We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (for evaluation purposes). You can access the full cTDaR dataset from the following publicly available GitHub repo: [cTDaR - All Tracks](https://github.com/cndplab-founder/ICDAR2019_cTDaR)
 
-### Datasets
-- **Table Detection** - We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (for evaluation purposes). You can access the full cTDaR dataset from the following publicly available GitHub repo: [cTDaR - All Tracks](https://github.com/cndplab-founder/ICDAR2019_cTDaR)
+- Table Structure Recognition - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website. We also provide ICDAR2013 test set by default.
 
-- **Table Structure Recognition** - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website.
+## Data Augmentation
+Refer to [augmentation](augmentation/) directory for instructions on how to use the scripts to generate new document images.
 
+## Run
+Following sections provide instructions to evaluate and/or train PyramidTabNet on your own data.<br/>
+*Note: It is recommended to execute the scripts in this directory from the project root in order to utilize the relative paths to the test set.*
+### Evaluation
+- Download link of fine-tuned weights are available in [this table](https://github.com/muhd-umer/PyramidTabNet#table-detection).
+- Execute `test.py` with the appropriate command line arguments. Example usage:
+```python
+python model/test.py --config-file path/to/config/file \
+                     --det-weights path/to/finetuned/checkpoint \
+                     --data-dir data/cTDaR/ \
+                     --device "cuda"
+```
+
+### End-to-end inference
+- To perform end-to-end table analysis (visualize detections/extract bounding box coordinates of tables) on a single image, execute `run.py`. Download the weights from [Weights & Metrics](#weights--metrics) and place them in the [weights/](weights/) directory. Example usage:
+```python
+python run.py --config-file path/to/config/file \
+              --weights-dir path/to/weights/dir \
+              --input-img path/to/input/image \
+              --device "cuda"
+```
+
+### Detection Inference
+- To perform only table detection on a single image, execute `inference.py`. Example usage:
+```python
+python model/inference.py --config-file path/to/config/file \
+                          --input-img path/to/input/image \
+                          --det-weights path/to/finetuned/checkpoint \
+                          --device "cuda"
+```
+
+### Training
+- Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️
+- Before firing up the `train.py` script, make sure to configure the data keys in the config file 
+- *Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys.*
+```python
+python train.py path/to/config/file --gpu-id 0
+```
+*Note: A distributed training script is not bundled with this repo, however, you can refer to the official MMDetection repo for one.*
+
+## Weights & Metrics
 ### Table Detection
-The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/detection](detection/README.md). The weights (.pth) file are embedded into the model column of the following table.
+The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instructions to reproduce the results can be found inside [PyramidTabNet/model](model/README.md). The weights (.pth) file are embedded into the model column of the following table.
 
 <div align="center">
 
@@ -39,14 +80,17 @@ The results of table detection on `ICDAR 2019 cTDaR` are shown below. The instru
 </div>
 
 ### Table Structure Recognition
-Subject to change.
+The results of table detection on `ICDAR 2013` are shown below. The weights (.pth) file are embedded into the model column of the following table.
 
 <div align="center">
 
-| Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| PyramidTabNet | | | | | |
-
+| Model | Precision | Recall | F1 |
+|:---:|:---:|:---:|:---:|
+| DeepDeSRT | 95.91 | 87.42 | 91.44 |
+| SPLERGE | 91.22 | 91.14 | 91.92 |
+| BI-directional GRU | 96.93 | 90.14 | 93.42 |
+| TabStructNet | 93.01 | 90.81 | 91.92 |
+| [PyramidTabNet](https://drive.google.com/file/d/1v1ndhJlgmEtvgTxrlpCE9jycNEAiehVN/view?usp=share_link) | 93.53 | 90.74 | 92.11 |
 </div>
 
 ## Common Issues

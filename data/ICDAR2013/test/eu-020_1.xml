@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<annotation>
+   <folder>icdar</folder>
+   <filename>eu-020_1.xml</filename>
+   <path>icdar/val/gt/eu-020_1.xml</path>
+   <source>
+      <database>Unknown</database>
+   </source>
+   <size>
+      <width>1751</width>
+      <height>2480</height>
+      <depth>3</depth>
+   </size>
+   <segmented>0</segmented>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>232</xmin>
+         <ymin>646</ymin>
+         <xmax>1519</xmax>
+         <ymax>944</ymax>
+      </bndbox>
+   </object>
+   <object>
+      <name>table</name>
+      <pose>Unspecified</pose>
+      <truncated>0</truncated>
+      <difficult>0</difficult>
+      <bndbox>
+         <xmin>234</xmin>
+         <ymin>1598</ymin>
+         <xmax>1518</xmax>
+         <ymax>1941</ymax>
+      </bndbox>
+   </object>
+</annotation>

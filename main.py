@@ -284,5 +284,5 @@ if __name__ == "__main__":
                 draw_cells,
             )
 
-print(colored(f"Inference on {base_name} completed.", "blue"))
-print(colored(f"Results saved at {osp.abspath(args.output_dir)}", "blue"))
+    print(colored(f"Inference on {base_name} completed.", "blue"))
+    print(colored(f"Results saved at {osp.abspath(args.output_dir)}", "blue"))

@@ -12,9 +12,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-Inference Script
-Outputs original image with bounding boxes as well as a text file containing
-bounding box coordinates.
+Evaluation script for precision, recall, and F1 score
 """
 
 import warnings
@@ -27,11 +25,11 @@ import cv2
 import numpy as np
 import torch
 
-from mmdet.apis import inference_detector, show_result_pyplot
+from mmdet.apis import inference_detector
 from mmdet.apis.inference import init_detector
 
 import argparse
-from utils import get_area, get_overlap_status
+from utils import get_area, get_overlap_status, calculate_metrics, pascal_voc_bbox
 from sys import exit
 from termcolor import colored
 from contextlib import contextmanager
@@ -48,18 +46,26 @@ def suppress_stdout():
         finally:
             sys.stdout = old_stdout
 
+
+def average(list):
+    return sum(list) / len(list)
+
+
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Perform inference on your table image."
-    )
+    parser = argparse.ArgumentParser(description="Evaluate your detector.")
     parser.add_argument(
         "--config-file",
         help="Path to detector config file. (In configs/ directories.)",
         required=True,
     )
     parser.add_argument(
-        "--input-img",
-        help="Path to input image to perform inference on.",
+        "--input-dir",
+        help="Path to test dataset to perform evaluation on.",
+        required=True,
+    )
+    parser.add_argument(
+        "--gt-dir",
+        help="Path to ground truth files (PASCAL VOC).",
         required=True,
     )
     parser.add_argument(
@@ -70,7 +76,7 @@ def parse_args():
     parser.add_argument(
         "--output-dir",
         help="Path to output where bounding box predictions are saved.",
-        default="output/",
+        default=None,
         required=False,
     )
     parser.add_argument(
@@ -100,13 +106,16 @@ def get_preds(image, model, thresh):
     result = inference_detector(model, image)
 
     det_boxes = []
+    conf = []
+    remove_index = []
 
     for r in result[0][0]:
-        if r[4] > thresh:
+        conf.append(r[4])
+        if r[4] > 0.5:
             det_boxes.append(r.astype(int))
 
     if len(det_boxes) == 0:
-        return 0, 0
+        pass
     else:
         det_boxes = np.array(det_boxes)[:, :4]
         det_boxes = det_boxes.tolist()
@@ -121,32 +130,35 @@ def get_preds(image, model, thresh):
                         get_area(det_boxes[i]) < get_area(det_boxes[k])
                     ):
                         pred_boxes.remove(det_boxes[i])
+                        remove_index.append(i)
                 else:
                     pass
 
-    return result, pred_boxes
+    for j in sorted(remove_index, reverse=True):
+        del conf[j]
+
+    return result, pred_boxes, conf
 
 
 if __name__ == "__main__":
     args = parse_args()
 
     assert osp.exists(
-        args.input_img
-    ), "Input image does not exist. Recheck file directory."
+        args.input_dir
+    ), "Input directory does not exist. Recheck file directory."
 
-    image = cv2.imread(str(args.input_img), cv2.IMREAD_COLOR)
-    path, base_name = (
-        osp.split(str(args.input_img))[0],
-        osp.split(str(args.input_img))[1],
-    )
+    input_path = osp.abspath(str(args.input_dir))
+    gt_path = osp.abspath(str(args.gt_dir))
+    file_list = os.listdir(input_path)
+
+    assert len(os.listdir(input_path)) == len(
+        os.listdir(gt_path)
+    ), "Input directory must contain the same number of files as in the ground truth directory."
 
     if args.device == "cuda":
         assert torch.cuda.is_available(), f"No CUDA Runtime found."
 
     # MMDetection Inference Pipeline
-    ori_img = cv2.imread(str(args.input_img), cv2.IMREAD_COLOR)
-    ori_img = ori_img[:, :, :3]  # Removing possible alpha channel
-
     checkpoint_file = args.weights
     config_file = args.config_file
 
@@ -159,61 +171,74 @@ if __name__ == "__main__":
             "cyan",
         )
     )
-    
-    result, pred_boxes = get_preds(ori_img, model, 0.8)
 
-    # Exit the inference script if no predictions are made
-    if (result, pred_boxes) == (0, 0):
-        print(
-            colored(
-                f"No predictions were made in image {base_name}",
-                "red",
+    precision, recall, f1_score = [], [], []
+
+    for i in range(len(file_list)):
+        ori_img = cv2.imread(osp.join(input_path, file_list[i]), cv2.IMREAD_COLOR)
+        ori_img = ori_img[:, :, :3]  # Removing possible alpha channel
+        result, pred_boxes, conf = get_preds(ori_img, model, 0.8)
+
+        # Exit the inference script if no predictions are made
+        if (result, pred_boxes) == (0, 0):
+            print(
+                colored(
+                    f"No predictions were made in image {file_list[i]}",
+                    "red",
+                )
             )
+            pass
+
+        else:
+            if args.output_dir is not None:
+                os.makedirs(args.output_dir, exist_ok=True)
+
+                # Saving bounding box coordinates in a text file
+                file = open(osp.join(args.output_dir, f"{file_list[i][:-4]}.txt"), "w")
+                for k in range(len(pred_boxes)):
+                    file.write(
+                        "table "
+                        + str(conf[k])
+                        + " "
+                        + str(pred_boxes[k][0])
+                        + " "
+                        + str(pred_boxes[k][1])
+                        + " "
+                        + str(pred_boxes[k][2])
+                        + " "
+                        + str(pred_boxes[k][3])
+                        + "\n"
+                    )
+                file.close()
+
+                print(colored(f"Saved inference on {file_list[i]}.", "blue"))
+
+            for j in range(len(pred_boxes)):
+                pred_boxes[j].insert(0, "table")
+
+            gt_boxes = pascal_voc_bbox(osp.join(gt_path, file_list[i][:-4] + ".xml"))
+            p_item, r_item, f1_item = calculate_metrics(pred_boxes, gt_boxes)
+
+            precision.append(p_item)
+            recall.append(r_item)
+            f1_score.append(f1_item)
+
+    # Print metrics to console
+    print(
+        colored(
+            f"Precision: {average(precision)}",
+            "blue",
         )
-        exit()
-
-    else:
-        os.makedirs(osp.join(args.output_dir, base_name[:-4]), exist_ok=True)
-
-        # Saving bounding box coordinates in a text file
-        file = open(osp.join(args.output_dir, base_name[:-4], "bbox_coords.txt"), "w")
-        for k in range(len(pred_boxes)):
-            file.write(
-                "table "
-                + str(pred_boxes[k][0])
-                + " "
-                + str(pred_boxes[k][1])
-                + " "
-                + str(pred_boxes[k][2])
-                + " "
-                + str(pred_boxes[k][3])
-                + "\n"
-            )
-        file.close()
-
-        print(colored(f"Inference on {base_name} completed.", "blue"))
-        print(colored(f"Results saved at {osp.abspath(args.output_dir)}", "blue"))
-
-        # Saving result images
-        show_result_pyplot(
-            model,
-            ori_img,
-            result,
-            score_thr=0.8,
-            out_file=osp.join(
-                args.output_dir, base_name[:-4], "instance_detections.png"
-            ),
+    )
+    print(
+        colored(
+            f"Recall: {average(recall)}",
+            "blue",
         )
-
-        for i in range(len(pred_boxes)):
-            ori_img = cv2.rectangle(
-                ori_img,
-                (pred_boxes[i][0], pred_boxes[i][1]),
-                (pred_boxes[i][2], pred_boxes[i][3]),
-                (255, 0, 255),
-                2,
-            )
-
-        cv2.imwrite(
-            osp.join(args.output_dir, base_name[:-4], "bbox_detections.png"), ori_img
+    )
+    print(
+        colored(
+            f"F1-Score: {average(f1_score)}",
+            "blue",
         )
+    )

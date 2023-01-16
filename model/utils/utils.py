@@ -23,6 +23,7 @@ from xml.dom.minidom import Document
 import numpy as np
 import cv2
 from evaluation import calc_table_score
+import xml.etree.ElementTree as ET
 
 
 def generate_xml(output_dir, filenames, outputs_dict, threshold):
@@ -138,18 +139,17 @@ def get_nearness(a, b, factor):
     else:
         return False
 
+
 def get_bbox(table_mask):
     """
-    Get bounding box coordinates from a 
+    Get bounding box coordinates from a
         mask, we filter out contours
         with area less than 50 so
         noise isnt marked as a mask
     """
     table_mask = table_mask.astype(np.uint8)
 
-    contours, _ = cv2.findContours(
-        table_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
-    )
+    contours, _ = cv2.findContours(table_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     table_contours = []
     boxes = []
 
@@ -186,7 +186,7 @@ def get_center(bbox):
 
 def expand_mask(mask, bbox_list):
     """
-    Expands masl width to remove extra 
+    Expands masl width to remove extra
         unnecessary text
     Helps model filtering out text
     """
@@ -215,3 +215,80 @@ def get_paste_location(mask):
     paste_location = loc_bbox[area_bbox.index(max(area_bbox))]
 
     return paste_location
+
+
+def calculate_iou(box1, box2):
+    """
+    Computes the IoU of two boxes
+    """
+    x1_min, y1_min, x1_max, y1_max = box1
+    x2_min, y2_min, x2_max, y2_max = box2
+
+    x_min = max(x1_min, x2_min)
+    y_min = max(y1_min, y2_min)
+    x_max = min(x1_max, x2_max)
+    y_max = min(y1_max, y2_max)
+
+    intersection_area = max(0, x_max - x_min) * max(0, y_max - y_min)
+    box1_area = (x1_max - x1_min) * (y1_max - y1_min)
+    box2_area = (x2_max - x2_min) * (y2_max - y2_min)
+    union_area = box1_area + box2_area - intersection_area
+
+    return intersection_area / union_area
+
+
+def calculate_metrics(pred_boxes, gt_boxes, iou_threshold=0.5):
+    """
+    Computes precision, recall, and f1 score
+    """
+    true_positives = 0
+    false_positives = 0
+    false_negatives = 0
+
+    for pred_box in pred_boxes:
+        pred_class, xmin, ymin, xmax, ymax = pred_box
+        best_iou = iou_threshold
+        best_gt = None
+        for gt_box in gt_boxes:
+            gt_class, xmin_gt, ymin_gt, xmax_gt, ymax_gt = gt_box
+            if pred_class != gt_class:
+                continue
+            iou = calculate_iou(
+                (xmin, ymin, xmax, ymax), (xmin_gt, ymin_gt, xmax_gt, ymax_gt)
+            )
+            if iou > best_iou:
+                best_iou = iou
+                best_gt = gt_box
+
+        if best_gt is None:
+            false_positives += 1
+        else:
+            true_positives += 1
+            gt_boxes.remove(best_gt)
+
+    false_negatives = len(gt_boxes)
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+    f1_score = 2 * (precision * recall) / (precision + recall)
+
+    return precision, recall, f1_score
+
+
+def pascal_voc_bbox(path):
+    """
+    Extract all table bounding boxes from GT
+    """
+    tree = ET.parse(path)
+    root = tree.getroot()
+
+    bbox_coordinates = []
+    for member in root.findall("object"):
+        class_name = member[0].text  # class name
+        xmin = int(member[4][0].text)
+        ymin = int(member[4][1].text)
+        xmax = int(member[4][2].text)
+        ymax = int(member[4][3].text)
+
+        bbox_coordinates.append([class_name, xmin, ymin, xmax, ymax])
+
+        return bbox_coordinates

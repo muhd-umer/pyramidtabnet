@@ -17,9 +17,8 @@ pip install -r requirements.txt
 ```
 
 ## Datasets
-- Table Detection - We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (for evaluation purposes). You can access the full cTDaR dataset from the following publicly available GitHub repo: [cTDaR - All Tracks](https://github.com/cndplab-founder/ICDAR2019_cTDaR)
 
-- Table Structure Recognition - You can access download links to [FinTabNet](https://developer.ibm.com/exchanges/data/all/fintabnet/) from the official IBM developer website. We also provide ICDAR2013 test set by default.
+We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (for evaluation). You can access the full cTDaR dataset from the following publicly available GitHub repo: [cTDaR - All Tracks](https://github.com/cndplab-founder/ICDAR2019_cTDaR). Other public datasets can be downloaded and placed in [data](data/) directory for training/evaluation.
 
 ## Data Augmentation
 
@@ -28,7 +27,20 @@ Refer to [augmentation](augmentation/) directory for instructions on how to use 
 ## Run
 
 Following sections provide instructions to evaluate and/or train PyramidTabNet on your own data.<br/>
-*Note: It is recommended to execute the scripts in this directory from the project root in order to utilize the relative paths to the test set.*
+_Note: It is recommended to execute the scripts from the project root in order to utilize the relative paths to the test set._
+
+### Training
+
+- Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️
+- Before firing up the `train.py` script, make sure to configure the data keys in the config file
+- _Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys._
+
+```python
+python train.py path/to/config/file --gpu-id 0
+```
+
+_Note: A distributed training script is not bundled with this repo, however, you can refer to the official MMDetection repo for one._
+
 ### Evaluation
 
 - Download link of fine-tuned weights are available in [this table](https://github.com/muhd-umer/PyramidTabNet#table-detection).
@@ -41,8 +53,10 @@ python model/test.py --config-file path/to/config/file \
                      --device "cuda"
 ```
 
-### End-to-end inference
-- To perform end-to-end table analysis (visualize detections/extract bounding box coordinates of tables) on a single image, execute `run.py`. Download the weights from [Weights & Metrics](#weights--metrics) and place them in the [weights/](weights/) directory. Example usage:
+### Inference
+
+- To perform end-to-end table analysis (visualize detections) on a single image, execute `main.py`. Download the weights from [Weights & Metrics](#weights--metrics) and place them in the [weights/](weights/) directory. Example usage:
+
 ```python
 python main.py --config-file path/to/config/file \
                --input-img path/to/input/image \
@@ -51,39 +65,50 @@ python main.py --config-file path/to/config/file \
 ```
 
 ### Detection Inference
-- To perform either detection or stucture recognition on a single image, execute `inference.py`. Example usage:
+
+- To perform table detection on a single image, execute `td.py`. Example usage:
+
 ```python
-python model/inference.py --config-file path/to/config/file \
-                          --input-img path/to/input/image \
-                          --weights path/to/finetuned/checkpoint \
-                          --device "cuda"
+python model/td.py --config-file path/to/config/file \
+                   --input-img path/to/input/image \
+                   --weights-dir path/to/weights/directory \
+                   --device "cuda"
 ```
 
-### Training
-- Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️
-- Before firing up the `train.py` script, make sure to configure the data keys in the config file 
-- *Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys.*
+### Recognition Inference
+
+- To perform stucture recognition on a single image, execute `tsr.py`. Example usage:
+
 ```python
-python train.py path/to/config/file --gpu-id 0
+python model/tsr.py --config-file path/to/config/file \
+                    --input-img path/to/input/image \
+                    --weights-dir path/to/weights/directory \
+                    --device "cuda"
 ```
 
 ## Weights & Metrics
-### Table Detection
-The results of table detection on `ICDAR 2019 cTDaR` are shown below. The weights (.pth) file are embedded into the model column of the following table.
+
+Weights, along with evaluation metrics, are linked in this section. Note: End-user should place the downloaded weights in the [weights/](weights/) directory for a streamlined evaluation of scripts.
+
+- Download the table detection models from the following table:
+<div align="center">
+
+### **Table Detection**
+
+| <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
+| --- | --- | --- | --- | --- | --- |
+| PyramidTabNet | ICDAR 2017-POD <br> ICDAR 2019 <br> UNLV <br> Marmot <br> PubLayNet <br> | - <br> - <br> - <br> - <br> - | - <br> - <br> - <br> - <br> - | - <br> - <br> - <br> - <br> - | [Link]() <br> [Link]() <br> [Link]() <br> [Link]() <br> [Link]() |
+
+</div>
 
 - Download the table structure recognition models from the following table:
 <div align="center">
 
-| Model | Weighted F1 | IoU<sup>@.6</sup> | IoU<sup>@.7</sup> | IoU<sup>@.8</sup> | IoU<sup>@.9</sup> |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| DeiT-B | 93.07 | 95.51 | 94.61 | 93.48 | 89.89 |
-| BEiT-B | 94.25 | 96.06 | 95.39 | 95.16 | 91.34 |
-| MAE-B | 93.81 | 96.47 | 95.58 | 94.48 | 90.07 |
-| DiT-B | 94.74 | 96.29 | 95.61 | 95.39 | 92.46 |
-| DiT-L | 95.50 | 98.00 | 97.56 | 96.23 | 91.57 |
-| DiT-B (Cascade) | 95.85 | 97.33 | 96.89 | 96.67 | 93.33 |
-| DiT-L (Cascade) | 96.29 | 97.89 | 97.22 | 97.00 | 93.88 |
-| [PyramidTabNet](https://drive.google.com/file/d/1DN_DSM-wb5izSoL7PkBirL3_R7y-tK1i/view?usp=share_link) | 97.02 | 98.45 | 98.45 | 97.57 | 94.47 |
+### **Table Structure Recognition**
+
+| <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
+| --- | --- | --- | --- | --- | --- |
+| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| - <br> - <br> - <br> | - <br> - <br> - <br>| - <br> - <br> - <br>| [Link]() <br> - <br> [Link]() |
 
 </div>
 
@@ -91,13 +116,8 @@ _Note: FinTabNet fine-tuned model is for cell-detection._
 
 <div align="center">
 
-| Model | Precision | Recall | F1 |
-|:---:|:---:|:---:|:---:|
-| DeepDeSRT | 95.91 | 87.42 | 91.44 |
-| SPLERGE | 91.22 | 91.14 | 91.92 |
-| BI-directional GRU | 96.93 | 90.14 | 93.42 |
-| TabStructNet | 93.01 | 90.81 | 91.92 |
-| [PyramidTabNet](https://drive.google.com/file/d/1v1ndhJlgmEtvgTxrlpCE9jycNEAiehVN/view?usp=share_link) | 93.53 | 90.74 | 92.11 |
+**Download the concatenated best weights file (.pt) from [this link]().**
+
 </div>
 
 ## Common Issues

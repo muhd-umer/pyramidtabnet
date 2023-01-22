@@ -22,7 +22,6 @@ import shutil
 from xml.dom.minidom import Document
 import numpy as np
 import cv2
-from evaluation import calc_table_score
 import xml.etree.ElementTree as ET
 
 
@@ -83,15 +82,6 @@ def generate_xml(output_dir, filenames, outputs_dict, threshold):
         fp.close()
 
     return output_dir
-
-
-def evaluate_table(xml_dir):
-    """
-    Returns weighted F1 score
-    """
-    results = calc_table_score(xml_dir)
-
-    return results["wF1"]
 
 
 def get_overlap_status(R1, R2):
@@ -292,3 +282,76 @@ def pascal_voc_bbox(path):
         bbox_coordinates.append([class_name, xmin, ymin, xmax, ymax])
 
         return bbox_coordinates
+
+
+detection_dict = {
+    "data.train.classes": ("table",),
+    "data.val.classes": ("table",),
+    "data.test.classes": ("table",),
+    "model.roi_head.bbox_head.0.num_classes": 1,
+    "model.roi_head.bbox_head.1.num_classes": 1,
+    "model.roi_head.bbox_head.2.num_classes": 1,
+    "model.roi_head.mask_head.num_classes": 1,
+}
+
+cell_dict = {
+    "data.train.classes": ("cell",),
+    "data.val.classes": ("cell",),
+    "data.test.classes": ("cell",),
+    "data.val.pipeline.1.img_scale": (1333, 800),
+    "data.test.pipeline.1.img_scale": (1333, 800),
+    "model.roi_head.bbox_head.0.num_classes": 1,
+    "model.roi_head.bbox_head.1.num_classes": 1,
+    "model.roi_head.bbox_head.2.num_classes": 1,
+    "model.roi_head.mask_head.num_classes": 1,
+}
+
+structure_dict = {
+    "data.train.classes": (
+        "table column",
+        "table column header",
+    ),
+    "data.val.classes": (
+        "table column",
+        "table column header",
+    ),
+    "data.test.classes": (
+        "table column",
+        "table column header",
+    ),
+    "data.train.pipeline.3.policies.0.0.img_scale": [
+        (480, 1333),
+        (512, 1333),
+        (544, 1333),
+        (576, 1333),
+        (608, 1333),
+        (640, 1333),
+        (672, 1333),
+        (704, 1333),
+        (736, 1333),
+        (768, 1333),
+    ],
+    "data.train.pipeline.3.policies.1.0.img_scale": [
+        (400, 1333),
+        (500, 1333),
+        (600, 1333),
+    ],
+    "data.train.pipeline.3.policies.1.2.img_scale": [
+        (480, 1333),
+        (512, 1333),
+        (544, 1333),
+        (576, 1333),
+        (608, 1333),
+        (640, 1333),
+        (672, 1333),
+        (704, 1333),
+        (736, 1333),
+        (768, 1333),
+    ],
+    "data.val.pipeline.1.img_scale": (768, 600),
+    "data.test.pipeline.1.img_scale": (768, 600),
+    "model.roi_head.bbox_head.0.num_classes": 2,
+    "model.roi_head.bbox_head.1.num_classes": 2,
+    "model.roi_head.bbox_head.2.num_classes": 2,
+    "model.roi_head.mask_head.num_classes": 2,
+}

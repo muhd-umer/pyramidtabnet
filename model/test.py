@@ -22,9 +22,9 @@ import torch
 from mmcv import Config
 from mmcv.cnn import fuse_conv_bn
 from mmcv.runner import get_dist_info, load_checkpoint, wrap_fp16_model
-from utils import generate_xml, evaluate_table
+from utils import generate_xml
 
-from evaluation import evaluate
+from evaluation import evaluate, calc_table_score
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 from mmdet.models import build_detector
 from mmdet.utils import (
@@ -36,6 +36,15 @@ from mmdet.utils import (
 )
 
 
+def evaluate_table(xml_dir):
+    """
+    Returns weighted F1 score
+    """
+    results = calc_table_score(xml_dir)
+
+    return results["wF1"]
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate your table detector.")
     parser.add_argument(
@@ -44,12 +53,12 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
-        "--det-weights",
+        "--weights",
         help="Checkpoint file to load weights from.",
         required=True,
     )
     parser.add_argument(
-        "--data-dir", type=str, help="Path to test cTDaR dataset.", required=True
+        "--data-dir", type=str, help="Path to test dataset.", required=True
     )
     parser.add_argument(
         "--output-dir",

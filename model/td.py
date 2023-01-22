@@ -12,7 +12,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-Inference Script
+Inference Script for Table Detection
 Outputs original image with bounding boxes as well as a text file containing
 bounding box coordinates.
 """
@@ -31,7 +31,7 @@ from mmdet.apis import inference_detector, show_result_pyplot
 from mmdet.apis.inference import init_detector
 
 import argparse
-from utils import get_area, get_overlap_status
+from utils import get_area, get_overlap_status, detection_dict
 from sys import exit
 from termcolor import colored
 from contextlib import contextmanager
@@ -47,6 +47,7 @@ def suppress_stdout():
             yield
         finally:
             sys.stdout = old_stdout
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -65,7 +66,8 @@ def parse_args():
     parser.add_argument(
         "--weights",
         help="Checkpoint file to load weights from.",
-        required=True,
+        default="weights/table_det.pth",
+        required=False,
     )
     parser.add_argument(
         "--output-dir",
@@ -83,7 +85,7 @@ def parse_args():
     return args
 
 
-def get_preds(image, model, thresh):
+def get_preds(image, model, thresh, axis, merge=True):
     """
     Detect boxes in the input image.
     Args:
@@ -96,33 +98,33 @@ def get_preds(image, model, thresh):
         pred_boxes (list): Nested list where each element is
             of the form [xmin, ymin, xmax, ymax]
     """
-    model = model
     result = inference_detector(model, image)
 
-    det_boxes = []
+    result_boxes = []
 
-    for r in result[0][0]:
+    for r in result[0][axis]:
         if r[4] > thresh:
-            det_boxes.append(r.astype(int))
+            result_boxes.append(r.astype(int))
 
-    if len(det_boxes) == 0:
+    if len(result_boxes) == 0:
         return 0, 0
     else:
-        det_boxes = np.array(det_boxes)[:, :4]
-        det_boxes = det_boxes.tolist()
-        pred_boxes = det_boxes.copy()
+        result_boxes = np.array(result_boxes)[:, :4]
+        result_boxes = result_boxes.tolist()
+        pred_boxes = result_boxes.copy()
 
-        for i in range(len(det_boxes)):
-            for k in range(len(det_boxes)):
-                if (k != i) and (
-                    get_overlap_status(det_boxes[i], det_boxes[k]) == True
-                ):
-                    if (det_boxes[i] in pred_boxes) and (
-                        get_area(det_boxes[i]) < get_area(det_boxes[k])
+        if merge == True:
+            for i in range(len(result_boxes)):
+                for k in range(len(result_boxes)):
+                    if (k != i) and (
+                        get_overlap_status(result_boxes[i], result_boxes[k]) == True
                     ):
-                        pred_boxes.remove(det_boxes[i])
-                else:
-                    pass
+                        if (result_boxes[i] in pred_boxes) and (
+                            get_area(result_boxes[i]) < get_area(result_boxes[k])
+                        ):
+                            pred_boxes.remove(result_boxes[i])
+                    else:
+                        pass
 
     return result, pred_boxes
 
@@ -151,7 +153,9 @@ if __name__ == "__main__":
     config_file = args.config_file
 
     with suppress_stdout():
-        model = init_detector(config_file, checkpoint_file, device=args.device)
+        model = init_detector(
+            config_file, checkpoint_file, device=args.device, cfg_options=detection_dict
+        )
 
     print(
         colored(
@@ -159,8 +163,8 @@ if __name__ == "__main__":
             "cyan",
         )
     )
-    
-    result, pred_boxes = get_preds(ori_img, model, 0.8)
+
+    result, pred_boxes = get_preds(ori_img, model, 0.8, 0)
 
     # Exit the inference script if no predictions are made
     if (result, pred_boxes) == (0, 0):
@@ -205,15 +209,15 @@ if __name__ == "__main__":
             ),
         )
 
-        for i in range(len(pred_boxes)):
+        for box in pred_boxes:
             ori_img = cv2.rectangle(
                 ori_img,
-                (pred_boxes[i][0], pred_boxes[i][1]),
-                (pred_boxes[i][2], pred_boxes[i][3]),
+                (box[0], box[1]),
+                (box[2], box[3]),
                 (255, 0, 255),
                 2,
             )
 
         cv2.imwrite(
-            osp.join(args.output_dir, base_name[:-4], "bbox_detections.png"), ori_img
+            osp.join(args.output_dir, base_name[:-4], "table_detections.png"), ori_img
         )

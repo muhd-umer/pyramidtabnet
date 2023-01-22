@@ -10,7 +10,7 @@ _It is recommended to create a new virtual environment so that updates/downgrade
 
 - Environment characteristics
   <br/>`python = 3.9.12` `torch = 1.11.0` `cuda = 11.3` `torchvision = 0.12.0`
-- This repo uses toolboxes provided by `OpenMMLab` to train and test models. Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for [installation instructions](https://mmdetection.readthedocs.io/en/latest/get_started.html#installation).
+- This repo uses toolboxes provided by `OpenMMLab` to train and test models. Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for [installation instructions](https://mmdetection.readthedocs.io/en/latest/).
 
 ```
 pip install -r requirements.txt
@@ -22,7 +22,7 @@ We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (f
 
 ## Data Augmentation
 
-Refer to [augmentation](augmentation/) directory for instructions on how to use the scripts to generate new document images.
+Refer to [augmentation](augmentation#data-augmentation) directory for instructions on how to use the scripts to generate new document images.
 
 ## Run
 
@@ -31,7 +31,7 @@ _Note: It is recommended to execute the scripts from the project root in order t
 
 ### Training
 
-- Refer to [Data Augmentation](https://github.com/muhd-umer/PyramidTabNet/tree/main/detection/augmentation) to generate additional training samples to improve model performance. ❤️
+- Refer to [Data Augmentation](augmentation) to generate additional training samples to improve model performance. ❤️
 - Before firing up the `train.py` script, make sure to configure the data keys in the config file
 - _Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys._
 
@@ -43,7 +43,7 @@ _Note: A distributed training script is not bundled with this repo, however, you
 
 ### Evaluation
 
-- Download link of fine-tuned weights are available in [this table](https://github.com/muhd-umer/PyramidTabNet#table-detection).
+- Download link of fine-tuned weights are available in [this section.](#weights--metrics).
 - Execute `test.py` with the appropriate command line arguments. Example usage:
 
 ```python

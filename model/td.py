@@ -24,18 +24,18 @@ warnings.filterwarnings("ignore")
 import os
 import os.path as osp
 import cv2
-import numpy as np
 import torch
 
-from mmdet.apis import inference_detector, show_result_pyplot
-from mmdet.apis.inference import init_detector
+from mmdet.apis.inference import init_detector, show_result_pyplot
 
 import argparse
-from utils import get_area, get_overlap_status, detection_dict
-from sys import exit
+from utils import (
+    detection_dict,
+    get_preds,
+)
 from termcolor import colored
 from contextlib import contextmanager
-import sys, os
+import sys
 
 
 @contextmanager
@@ -59,8 +59,8 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
-        "--input-img",
-        help="Path to input image to perform inference on.",
+        "--input",
+        help="Path to input image/directory to perform inference on.",
         required=True,
     )
     parser.add_argument(
@@ -70,7 +70,7 @@ def parse_args():
         required=False,
     )
     parser.add_argument(
-        "--output-dir",
+        "--output",
         help="Path to output where bounding box predictions are saved.",
         default="output/",
         required=False,
@@ -81,79 +81,53 @@ def parse_args():
         default="cpu",
         required=False,
     )
+    parser.add_argument(
+        "--save-detections",
+        help="Enable/disable saving of visualizations.",
+        action=argparse.BooleanOptionalAction,
+        required=False,
+    )
     args = parser.parse_args()
     return args
-
-
-def get_preds(image, model, thresh, axis, merge=True):
-    """
-    Detect boxes in the input image.
-    Args:
-        model (nn.Module): The loaded detector.
-        img (np.ndarray): Loaded image.
-        thresh (float): Threshold for the bboxes and masks.
-    Returns:
-        result (tuple[list] or list): Detection results of
-            of the form (bbox, segm)
-        pred_boxes (list): Nested list where each element is
-            of the form [xmin, ymin, xmax, ymax]
-    """
-    result = inference_detector(model, image)
-
-    result_boxes = []
-
-    for r in result[0][axis]:
-        if r[4] > thresh:
-            result_boxes.append(r.astype(int))
-
-    if len(result_boxes) == 0:
-        return 0, 0
-    else:
-        result_boxes = np.array(result_boxes)[:, :4]
-        result_boxes = result_boxes.tolist()
-        pred_boxes = result_boxes.copy()
-
-        if merge == True:
-            for i in range(len(result_boxes)):
-                for k in range(len(result_boxes)):
-                    if (k != i) and (
-                        get_overlap_status(result_boxes[i], result_boxes[k]) == True
-                    ):
-                        if (result_boxes[i] in pred_boxes) and (
-                            get_area(result_boxes[i]) < get_area(result_boxes[k])
-                        ):
-                            pred_boxes.remove(result_boxes[i])
-                    else:
-                        pass
-
-    return result, pred_boxes
 
 
 if __name__ == "__main__":
     args = parse_args()
 
     assert osp.exists(
-        args.input_img
-    ), "Input image does not exist. Recheck file directory."
+        args.input
+    ), "Input image/directory does not exist. Recheck passed argument."
 
-    image = cv2.imread(str(args.input_img), cv2.IMREAD_COLOR)
-    path, base_name = (
-        osp.split(str(args.input_img))[0],
-        osp.split(str(args.input_img))[1],
-    )
+    allowed_extensions = ["jpg", "jpeg", "bmp", "png"]
+    file_list = []
+
+    if osp.isfile(args.input):
+        path, base_name = (
+            osp.split(str(args.input))[0],
+            osp.split(str(args.input))[1],
+        )
+        file_list.append(base_name)
+
+    else:
+        path = str(args.input)
+        file_list = os.listdir(str(args.input))
+
+    input_list = [
+        fn for fn in file_list if any(fn.endswith(ext) for ext in allowed_extensions)
+    ]
+
+    assert (
+        len(input_list) != 0
+    ), "Input file(s) must be among the allowed extensions. Allowed Extensions: [jpg, jpeg, bmp, png, webp, tiff]."
 
     if args.device == "cuda":
         assert torch.cuda.is_available(), f"No CUDA Runtime found."
-
-    # MMDetection Inference Pipeline
-    ori_img = cv2.imread(str(args.input_img), cv2.IMREAD_COLOR)
-    ori_img = ori_img[:, :, :3]  # Removing possible alpha channel
 
     checkpoint_file = args.weights
     config_file = args.config_file
 
     with suppress_stdout():
-        model = init_detector(
+        table_det = init_detector(
             config_file, checkpoint_file, device=args.device, cfg_options=detection_dict
         )
 
@@ -164,60 +138,75 @@ if __name__ == "__main__":
         )
     )
 
-    result, pred_boxes = get_preds(ori_img, model, 0.8, 0)
+    print(colored(f"Results will be saved to {osp.abspath(args.output)}", "blue"))
 
-    # Exit the inference script if no predictions are made
-    if (result, pred_boxes) == (0, 0):
-        print(
-            colored(
-                f"No predictions were made in image {base_name}",
-                "red",
-            )
-        )
-        exit()
+    for input in input_list:
+        image = cv2.imread(osp.join(path, input), cv2.IMREAD_COLOR)
+        image = image[:, :, :3]  # Removing possible alpha channel
 
-    else:
-        os.makedirs(osp.join(args.output_dir, base_name[:-4]), exist_ok=True)
-
-        # Saving bounding box coordinates in a text file
-        file = open(osp.join(args.output_dir, base_name[:-4], "bbox_coords.txt"), "w")
-        for k in range(len(pred_boxes)):
-            file.write(
-                "table "
-                + str(pred_boxes[k][0])
-                + " "
-                + str(pred_boxes[k][1])
-                + " "
-                + str(pred_boxes[k][2])
-                + " "
-                + str(pred_boxes[k][3])
-                + "\n"
-            )
-        file.close()
-
-        print(colored(f"Inference on {base_name} completed.", "blue"))
-        print(colored(f"Results saved at {osp.abspath(args.output_dir)}", "blue"))
-
-        # Saving result images
-        show_result_pyplot(
-            model,
-            ori_img,
-            result,
-            score_thr=0.8,
-            out_file=osp.join(
-                args.output_dir, base_name[:-4], "instance_detections.png"
-            ),
+        result_tables, tables = get_preds(
+            image, table_det, 0.8, axis=0, merge=False, craft=False, device=args.device
         )
 
-        for box in pred_boxes:
-            ori_img = cv2.rectangle(
-                ori_img,
-                (box[0], box[1]),
-                (box[2], box[3]),
-                (255, 0, 255),
-                2,
+        # Exit the inference script if no predictions are made
+        if (result_tables, tables) == (0, 0):
+            print(
+                colored(
+                    f"No predictions were made in image: {input}",
+                    "red",
+                )
             )
+            continue
 
-        cv2.imwrite(
-            osp.join(args.output_dir, base_name[:-4], "table_detections.png"), ori_img
-        )
+        else:
+            save_dir = osp.abspath(args.output)
+            base_name = input[:-4]
+
+            if args.save_detections:
+                base_name = "bbox_detections"
+                save_dir = osp.join(osp.abspath(args.output), input[:-4])
+
+            os.makedirs(save_dir, exist_ok=True)
+
+            # Saving bounding box coordinates in a text file
+            file = open(osp.join(save_dir, f"{base_name}.txt"), "w")
+            for table in tables:
+                file.write(
+                    "table "
+                    + str(table[0])
+                    + " "
+                    + str(table[1])
+                    + " "
+                    + str(table[2])
+                    + " "
+                    + str(table[3])
+                    + "\n"
+                )
+            file.close()
+
+            print(colored(f"Inference on {input} completed.", "blue"))
+
+            if args.save_detections:  # Saving results
+                save_tables = image.copy()
+
+                show_result_pyplot(
+                    table_det,
+                    image,
+                    result_tables,
+                    score_thr=0.8,
+                    out_file=osp.join(save_dir, "instance_detections.png"),
+                )
+
+                for box in tables:
+                    save_tables = cv2.rectangle(
+                        save_tables,
+                        (box[0], box[1]),
+                        (box[2], box[3]),
+                        (255, 0, 0),
+                        3,
+                    )
+
+                cv2.imwrite(
+                    osp.join(save_dir, "table_detections.png"),
+                    save_tables,
+                )

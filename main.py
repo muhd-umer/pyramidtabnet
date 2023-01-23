@@ -36,13 +36,12 @@ from contextlib import contextmanager
 import sys, os
 
 from model import (
-    get_area,
-    get_overlap_status,
     detection_dict,
     structure_dict,
     cell_dict,
     get_column_stucture,
     get_row_structure,
+    get_preds,
 )
 
 
@@ -67,7 +66,7 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
-        "--input-img",
+        "--input",
         help="Path to input image to perform inference on.",
         required=True,
     )
@@ -78,7 +77,7 @@ def parse_args():
         required=False,
     )
     parser.add_argument(
-        "--output-dir",
+        "--output",
         help="Path to output where bounding box predictions are saved.",
         default="output/",
         required=False,
@@ -93,70 +92,37 @@ def parse_args():
     return args
 
 
-def get_preds(image, model, thresh, axis, merge=True):
-    """
-    Detect boxes in the input image.
-    Args:
-        model (nn.Module): The loaded detector.
-        img (np.ndarray): Loaded image.
-        thresh (float): Threshold for the bboxes and masks.
-    Returns:
-        result (tuple[list] or list): Detection results of
-            of the form (bbox, segm)
-        pred_boxes (list): Nested list where each element is
-            of the form [xmin, ymin, xmax, ymax]
-    """
-    result = inference_detector(model, image)
-
-    result_boxes = []
-
-    for r in result[0][axis]:
-        if r[4] > thresh:
-            result_boxes.append(r.astype(int))
-
-    if len(result_boxes) == 0:
-        return 0, 0
-    else:
-        result_boxes = np.array(result_boxes)[:, :4]
-        result_boxes = result_boxes.tolist()
-        pred_boxes = result_boxes.copy()
-
-        if merge == True:
-            for i in range(len(result_boxes)):
-                for k in range(len(result_boxes)):
-                    if (k != i) and (
-                        get_overlap_status(result_boxes[i], result_boxes[k]) == True
-                    ):
-                        if (result_boxes[i] in pred_boxes) and (
-                            get_area(result_boxes[i]) < get_area(result_boxes[k])
-                        ):
-                            pred_boxes.remove(result_boxes[i])
-                    else:
-                        pass
-
-    return result, pred_boxes
-
-
 if __name__ == "__main__":
     args = parse_args()
 
     assert osp.exists(
-        args.input_img
-    ), "Input image does not exist. Recheck file directory."
+        args.input
+    ), "Input image/directory does not exist. Recheck passed argument."
 
-    image = cv2.imread(str(args.input_img), cv2.IMREAD_COLOR)
-    path, base_name = (
-        os.path.split(str(args.input_img))[0],
-        os.path.split(str(args.input_img))[1],
-    )
+    allowed_extensions = ["jpg", "jpeg", "bmp", "png"]
+    file_list = []
+
+    if osp.isfile(args.input):
+        path, base_name = (
+            osp.split(str(args.input))[0],
+            osp.split(str(args.input))[1],
+        )
+        file_list.append(base_name)
+
+    else:
+        path = str(args.input)
+        file_list = os.listdir(str(args.input))
+
+    input_list = [
+        fn for fn in file_list if any(fn.endswith(ext) for ext in allowed_extensions)
+    ]
+
+    assert (
+        len(input_list) != 0
+    ), "Input file(s) must be among the allowed extensions. Allowed Extensions: [jpg, jpeg, bmp, png, webp, tiff]."
 
     if args.device == "cuda":
         assert torch.cuda.is_available(), f"No CUDA Runtime found."
-
-    # MMDetection Inference Pipeline
-    ori_img = cv2.imread(str(args.input_img), cv2.IMREAD_COLOR)
-    ori_img = ori_img[:, :, :3]  # Removing possible alpha channel
-    draw_tables = ori_img.copy()
 
     table_det = os.path.join(os.path.abspath(args.weights_dir), "table_det.pth")
     structure_rec = os.path.join(os.path.abspath(args.weights_dir), "structure_rec.pth")
@@ -181,175 +147,208 @@ if __name__ == "__main__":
             "cyan",
         )
     )
-    result_tables, tables = get_preds(ori_img, det_model, 0.8, axis=0)
 
-    # Exit the inference script if no predictions are made
-    if (result_tables, tables) == (0, 0):
-        print(
-            colored(
-                f"No predictions were made in image {base_name}",
-                "red",
-            )
-        )
-        exit()
+    print(colored(f"Results will be saved to {osp.abspath(args.output)}", "blue"))
 
-    else:
-        os.makedirs(osp.join(args.output_dir, base_name[:-4]), exist_ok=True)
+    for input in input_list:
+        image = cv2.imread(osp.join(path, input), cv2.IMREAD_COLOR)
+        image = image[:, :, :3]  # Removing possible alpha channel
+        save_tables = image.copy()
 
-        # Saving bounding box coordinates in a text file
-        file = open(osp.join(args.output_dir, base_name[:-4], "table_coords.txt"), "w")
-        for i in range(len(tables)):
-            file.write(
-                "table "
-                + str(tables[i][0])
-                + " "
-                + str(tables[i][1])
-                + " "
-                + str(tables[i][2])
-                + " "
-                + str(tables[i][3])
-                + "\n"
-            )
+        result_tables, tables = get_preds(image, det_model, 0.8, axis=0)
 
-            draw_tables = cv2.rectangle(
-                draw_tables,
-                (tables[i][0], tables[i][1]),
-                (tables[i][2], tables[i][3]),
-                (255, 0, 0),
-                2,
-            )
-
-            cropped_table = ori_img[
-                tables[i][1] : tables[i][3],
-                tables[i][0] : tables[i][2],
-            ]
-            cv2.imwrite(
-                osp.join(args.output_dir, base_name[:-4], f"table_{i}.png"),
-                cropped_table,
-            )
-
-        file.close()
-        cv2.imwrite(
-            osp.join(args.output_dir, base_name[:-4], "table_detections.png"),
-            draw_tables,
-        )
-
-    root = etree.Element("document")
-    file = open(osp.join(args.output_dir, base_name[:-4], "structure.xml"), "w")
-    file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-
-    for k in range(len(tables)):
-        table_img = cv2.imread(
-            osp.join(args.output_dir, base_name[:-4], f"table_{k}.png"),
-            cv2.IMREAD_COLOR,
-        )
-        table_img = table_img[:, :, :3]  # Removing possible alpha channel
-        draw_cells = table_img.copy()
-        draw_cols = table_img.copy()
-
-        result_cells, cells = get_preds(table_img, cell_model, 0.5, axis=0)
-        result_columns, columns = get_preds(
-            table_img, structure_model, 0.5, axis=0, merge=False
-        )
-        result_headers, headers = get_preds(
-            table_img, structure_model, 0.5, axis=1, merge=False
-        )
-
-        tableXML = etree.Element("table")
-        tabelCoords = etree.Element(
-            "Coords",
-            points=str(tables[k][0])
-            + ","
-            + str(tables[k][1])
-            + " "
-            + str(tables[k][2])
-            + ","
-            + str(tables[k][3])
-            + " "
-            + str(tables[k][2])
-            + ","
-            + str(tables[k][3])
-            + " "
-            + str(tables[k][2])
-            + ","
-            + str(tables[k][1]),
-        )
-        tableXML.append(tabelCoords)
-
-        # Exit the inference script if no cells are detected.
-        if (result_cells, cells) == (0, 0) or (result_columns, columns) == (0, 0):
+        # Exit the inference script if no predictions are made
+        if (result_tables, tables) == (0, 0):
             print(
                 colored(
-                    f"No cells were detected in image table_{i}.png",
+                    f"No predictions were made in image: {input}",
                     "red",
                 )
             )
-            exit()
+            continue
 
         else:
+            save_dir = osp.join(osp.abspath(args.output), input[:-4])
+            os.makedirs(save_dir, exist_ok=True)
 
-            row_structure = get_row_structure(cells, columns)
-            col_structure = get_column_stucture(cells, columns)
-
-            for cell in cells:
-                cellXML = etree.Element("cell")
-                row_info = row_structure[str(cell)]
-                col_info = col_structure[str(cell)]
-                start_col, start_row, end_col, end_row = (
-                    min(col_info),
-                    min(row_info),
-                    max(col_info),
-                    max(row_info),
+            # Saving bounding box coordinates in a text file
+            file = open(osp.join(save_dir, "table_coords.txt"), "w")
+            for outer_idx in range(len(tables)):
+                file.write(
+                    "table "
+                    + str(tables[outer_idx][0])
+                    + " "
+                    + str(tables[outer_idx][1])
+                    + " "
+                    + str(tables[outer_idx][2])
+                    + " "
+                    + str(tables[outer_idx][3])
+                    + "\n"
                 )
 
-                cellXML.set("start-col", str(start_col))
-                cellXML.set("start-row", str(start_row))
-                cellXML.set("end-col", str(end_col))
-                cellXML.set("end-row", str(end_row))
-
-                c1 = str(cell[0] + tables[k][0]) + "," + str(cell[1] + tables[k][1])
-                c2 = str(cell[0] + tables[k][0]) + "," + str(cell[3] + tables[k][1])
-                c3 = str(cell[2] + tables[k][0]) + "," + str(cell[3] + tables[k][1])
-                c4 = str(cell[2] + tables[k][0]) + "," + str(cell[1] + tables[k][1])
-
-                coords = etree.Element(
-                    "Coords", points=c1 + " " + c2 + " " + c3 + " " + c4
-                )
-
-                cellXML.append(coords)
-                tableXML.append(cellXML)
-
-            root.append(tableXML)
-
-            for cell in cells:
-                draw_cells = cv2.rectangle(
-                    draw_cells,
-                    (cell[0], cell[1]),
-                    (cell[2], cell[3]),
+                save_tables = cv2.rectangle(
+                    save_tables,
+                    (tables[outer_idx][0], tables[outer_idx][1]),
+                    (tables[outer_idx][2], tables[outer_idx][3]),
                     (255, 0, 0),
                     2,
                 )
 
-            for column in columns:
-                draw_cols = cv2.rectangle(
-                    draw_cols,
-                    (column[0], column[1]),
-                    (column[2], column[3]),
-                    (255, 0, 0),
-                    2,
+                cropped_table = image[
+                    tables[outer_idx][1] : tables[outer_idx][3],
+                    tables[outer_idx][0] : tables[outer_idx][2],
+                ]
+                cv2.imwrite(
+                    osp.join(save_dir, f"table_{outer_idx}.png"),
+                    cropped_table,
                 )
 
+            file.close()
             cv2.imwrite(
-                osp.join(args.output_dir, base_name[:-4], f"table_{k}_cells.png"),
-                draw_cells,
-            )
-            cv2.imwrite(
-                osp.join(args.output_dir, base_name[:-4], f"table_{k}_columns.png"),
-                draw_cols,
+                osp.join(save_dir, "table_detections.png"),
+                save_tables,
             )
 
-    file.write(etree.tostring(root, pretty_print=True, encoding="unicode"))
-    file.close()
+        root = etree.Element("document")
 
-    print(colored(f"Inference on {base_name} completed.", "blue"))
-    print(colored(f"Results saved at {osp.abspath(args.output_dir)}", "blue"))
+        for inner_idx in range(len(tables)):
+            table_image = cv2.imread(osp.join(save_dir, f"table_{inner_idx}.png"))
+            table_image = table_image[:, :, :3]  # Removing possible alpha channel
+            save_cells = table_image.copy()
+            save_columns = table_image.copy()
+
+            result_cells, cells = get_preds(
+                table_image, cell_model, 0.3, axis=0, craft=True, device=args.device
+            )
+            result_columns, columns = get_preds(
+                table_image,
+                structure_model,
+                0.3,
+                axis=0,
+                merge=False,
+                device=args.device,
+            )
+
+            tableXML = etree.Element("table")
+            tabelCoords = etree.Element(
+                "Coords",
+                points=str(tables[inner_idx][0])
+                + ","
+                + str(tables[inner_idx][1])
+                + " "
+                + str(tables[inner_idx][2])
+                + ","
+                + str(tables[inner_idx][3])
+                + " "
+                + str(tables[inner_idx][2])
+                + ","
+                + str(tables[inner_idx][3])
+                + " "
+                + str(tables[inner_idx][2])
+                + ","
+                + str(tables[inner_idx][1]),
+            )
+            tableXML.append(tabelCoords)
+
+            # Exit the inference script if no cells are detected.
+            if (result_cells, cells) == (0, 0) or (result_columns, columns) == (0, 0):
+                print(
+                    colored(
+                        f"No cells were detected in image: table_{outer_idx}.png",
+                        "red",
+                    )
+                )
+                exit()
+
+            else:
+                row_structure = get_row_structure(cells, columns)
+                col_structure = get_column_stucture(cells, columns)
+
+                if row_structure == {} or col_structure == {}:
+                    print("Failed to fetch table structure.")
+
+                for cell in cells:
+                    cellXML = etree.Element("cell")
+
+                    try:
+                        row_info = row_structure[str(cell)]
+                        col_info = col_structure[str(cell)]
+
+                    except KeyError:
+                        continue
+
+                    start_col, start_row, end_col, end_row = (
+                        min(col_info),
+                        min(row_info),
+                        max(col_info),
+                        max(row_info),
+                    )
+
+                    cellXML.set("start-col", str(start_col))
+                    cellXML.set("start-row", str(start_row))
+                    cellXML.set("end-col", str(end_col))
+                    cellXML.set("end-row", str(end_row))
+
+                    c1 = (
+                        str(cell[0] + tables[inner_idx][0])
+                        + ","
+                        + str(cell[1] + tables[inner_idx][1])
+                    )
+                    c2 = (
+                        str(cell[0] + tables[inner_idx][0])
+                        + ","
+                        + str(cell[3] + tables[inner_idx][1])
+                    )
+                    c3 = (
+                        str(cell[2] + tables[inner_idx][0])
+                        + ","
+                        + str(cell[3] + tables[inner_idx][1])
+                    )
+                    c4 = (
+                        str(cell[2] + tables[inner_idx][0])
+                        + ","
+                        + str(cell[1] + tables[inner_idx][1])
+                    )
+
+                    coords = etree.Element(
+                        "Coords", points=c1 + " " + c2 + " " + c3 + " " + c4
+                    )
+
+                    cellXML.append(coords)
+                    tableXML.append(cellXML)
+
+                root.append(tableXML)
+
+                for cell in cells:
+                    save_cells = cv2.rectangle(
+                        save_cells,
+                        (cell[0], cell[1]),
+                        (cell[2], cell[3]),
+                        (255, 0, 0),
+                        2,
+                    )
+
+                for column in columns:
+                    save_columns = cv2.rectangle(
+                        save_columns,
+                        (column[0], column[1]),
+                        (column[2], column[3]),
+                        (255, 0, 0),
+                        2,
+                    )
+
+                cv2.imwrite(
+                    osp.join(save_dir, f"table_{inner_idx}_cells.png"),
+                    save_cells,
+                )
+                cv2.imwrite(
+                    osp.join(save_dir, f"table_{inner_idx}_columns.png"),
+                    save_columns,
+                )
+
+        file = open(osp.join(save_dir, "structure.xml"), "w")
+        file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        file.write(etree.tostring(root, pretty_print=True, encoding="unicode"))
+        file.close()
+
+        print(colored(f"Inference on {base_name} completed.", "blue"))

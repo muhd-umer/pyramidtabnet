@@ -12,7 +12,7 @@ _It is recommended to create a new virtual environment so that updates/downgrade
   <br/>`python = 3.9.12` `torch = 1.11.0` `cuda = 11.3` `torchvision = 0.12.0`
 - This repo uses toolboxes provided by `OpenMMLab` to train and test models. Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for [installation instructions](https://mmdetection.readthedocs.io/en/latest/).
 
-```
+```python
 pip install -r requirements.txt
 ```
 
@@ -36,10 +36,16 @@ _Note: It is recommended to execute the scripts from the project root in order t
 - _Refer to [MMDetection documentation](https://mmdetection.readthedocs.io/en/latest/2_new_data_model.html#train-with-customized-datasets) for more details on how to modify the keys._
 
 ```python
-python train.py path/to/config/file --gpu-id 0
+python model/train.py path/to/config/file --gpu-id 0
 ```
 
-_Note: A distributed training script is not bundled with this repo, however, you can refer to the official MMDetection repo for one._
+- Alternatively, you can launch training on multiple GPUs using the following script:
+
+```powershell
+bash model/dist_train.sh ${CONFIG_FILE} \
+                         ${GPU_NUM} \
+                         [optional args]
+```
 
 ### Evaluation
 
@@ -48,42 +54,45 @@ _Note: A distributed training script is not bundled with this repo, however, you
 
 ```python
 python model/test.py --config-file path/to/config/file \
+                     --input path/to/directory \
                      --weights path/to/finetuned/checkpoint \
-                     --data-dir data/cTDaR/ \
                      --device "cuda"
 ```
 
 ### Inference
 
-- To perform end-to-end table analysis (visualize detections) on a single image, execute `main.py`. Download the weights from [Weights & Metrics](#weights--metrics) and place them in the [weights/](weights/) directory. Example usage:
+- To perform end-to-end table analysis (visualize detections) on a `single image/test directory`, execute `main.py`. Download the weights from [Weights & Metrics](#weights--metrics) and place them in the [weights/](weights/) directory. Example usage:
 
 ```python
 python main.py --config-file path/to/config/file \
-               --input-img path/to/input/image \
+               --input path/to/input/image or directory \
                --weights-dir path/to/weights/directory \
                --device "cuda"
 ```
 
 ### Detection Inference
 
-- To perform table detection on a single image, execute `td.py`. Example usage:
+- To perform table detection on a `single image/test directory`, execute `td.py`. Example usage:
 
 ```python
 python model/td.py --config-file path/to/config/file \
-                   --input-img path/to/input/image \
-                   --weights-dir path/to/weights/directory \
-                   --device "cuda"
+                   --input path/to/input/image or directory \
+                   --weights path/to/detection/weights \
+                   --device "cuda" \
+                   --save-detections
 ```
 
 ### Recognition Inference
 
-- To perform stucture recognition on a single image, execute `tsr.py`. Example usage:
+- To perform stucture recognition on a `single image/test directory`, execute `tsr.py`. Example usage:
 
 ```python
 python model/tsr.py --config-file path/to/config/file \
-                    --input-img path/to/input/image \
-                    --weights-dir path/to/weights/directory \
-                    --device "cuda"
+                    --input path/to/input/image or directory \
+                    --structure-weights path/to/structure/weights \
+                    --cell-weights path/to/cell/weights \
+                    --device "cuda" \
+                    --save-detections
 ```
 
 ## Weights & Metrics
@@ -146,4 +155,6 @@ Resolve it by passing in the correct command line argument for `--config-file`.
 
 2. The authors of [Pyramid Vision Transformer (PVT v2)](https://arxiv.org/pdf/2106.13797.pdf) for their wonderful contribution to enhance advancements in computer vision.
 
-3. [Google Colaboratory](https://github.com/googlecolab) for providing free-high end GPU resources for research and development. All of the code base was developed using their platform and could not be possible without it.
+3. The authors of [Craft Text Detector](https://arxiv.org/abs/1904.01941) for their awesome repository for text detection.
+
+4. [Google Colaboratory](https://github.com/googlecolab) for providing free-high end GPU resources for research and development. All of the code base was developed using their platform and could not be possible without it.

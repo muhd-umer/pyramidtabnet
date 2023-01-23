@@ -58,10 +58,10 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
-        "--data-dir", type=str, help="Path to test dataset.", required=True
+        "--input", type=str, help="Path to test dataset.", required=True
     )
     parser.add_argument(
-        "--output-dir",
+        "--output",
         help="Path to output where picke file as well as metrics are saved.",
         default="output/",
         required=False,
@@ -113,14 +113,14 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    ROOT_DIR = osp.abspath(args.data_dir).replace(os.sep, "/")
+    ROOT_DIR = osp.abspath(args.input).replace(os.sep, "/")
     included_extensions = ["jpg"]
     test_filenames = [
         fn
-        for fn in os.listdir(osp.join(args.data_dir, "test"))
+        for fn in os.listdir(osp.join(args.input, "test"))
         if any(fn.endswith(ext) for ext in included_extensions)
     ]
-    picke_dir = osp.join(args.output_dir, "results.pkl")
+    picke_dir = osp.join(args.output, "results.pkl")
 
     cfg = Config.fromfile(args.config_file)
     cfg = replace_cfg_vals(cfg)
@@ -128,8 +128,8 @@ if __name__ == "__main__":
     update_data_root(cfg)
 
     # Update some keys in accordance with arguments
-    cfg.data.test.ann_file = osp.join(args.data_dir, "test.json")
-    cfg.data.test.img_prefix = osp.join(args.data_dir, "test/")
+    cfg.data.test.ann_file = osp.join(args.input, "test.json")
+    cfg.data.test.img_prefix = osp.join(args.input, "test/")
 
     if args.device == "cuda":
         assert torch.cuda.is_available(), f"No CUDA Runtime found."
@@ -194,9 +194,9 @@ if __name__ == "__main__":
 
     rank, _ = get_dist_info()
 
-    if args.output_dir is not None and rank == 0:
-        mmcv.mkdir_or_exist(osp.abspath(args.output_dir))
-        json_file = osp.join(args.output_dir, f"coco_metrics.json")
+    if args.output is not None and rank == 0:
+        mmcv.mkdir_or_exist(osp.abspath(args.output))
+        json_file = osp.join(args.output, f"coco_metrics.json")
 
     # Build the PyTorch Dataloader
     dataset = build_dataset(cfg.data.test)
@@ -227,12 +227,10 @@ if __name__ == "__main__":
     # Build DataParallel module and do testing on a single GPU.
     model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
     outputs_dict, outputs = evaluate(
-        model, data_loader, args.save_images, args.output_dir, args.threshold
+        model, data_loader, args.save_images, args.output, args.threshold
     )
 
-    xml_dir = generate_xml(
-        args.output_dir, test_filenames, outputs_dict, args.threshold
-    )
+    xml_dir = generate_xml(args.output, test_filenames, outputs_dict, args.threshold)
 
     # Pretty prints a table with cTDaR 2019 style metrics
     wF1 = evaluate_table(xml_dir)
@@ -240,7 +238,7 @@ if __name__ == "__main__":
     rank, _ = get_dist_info()
 
     if rank == 0:
-        if args.output_dir:
+        if args.output:
             print(f"\nWriting results to {picke_dir}.")
             mmcv.dump(outputs, picke_dir)
 
@@ -264,5 +262,5 @@ if __name__ == "__main__":
             metric = dataset.evaluate(outputs, **eval_kwargs)
             metric_dict = dict(config=args.config_file, metric=metric)
 
-            if args.output_dir is not None and rank == 0:
+            if args.output is not None and rank == 0:
                 mmcv.dump(metric_dict, json_file)

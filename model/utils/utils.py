@@ -23,6 +23,21 @@ from xml.dom.minidom import Document
 import numpy as np
 import cv2
 import xml.etree.ElementTree as ET
+from mmdet.apis import inference_detector
+from .craft import Craft
+import sys, os
+from contextlib import contextmanager
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
 
 
 def generate_xml(output_dir, filenames, outputs_dict, threshold):
@@ -284,6 +299,68 @@ def pascal_voc_bbox(path):
         return bbox_coordinates
 
 
+def get_preds(image, model, thresh, axis, merge=True, craft=False, device="cuda"):
+    """
+    Detect boxes in the input image.
+    Args:
+        model (nn.Module): The loaded detector.
+        img (np.ndarray): Loaded image.
+        thresh (float): Threshold for the bboxes and masks.
+    Returns:
+        result (tuple[list] or list): Detection results of
+            of the form (bbox, segm)
+        pred_boxes (list): Nested list where each element is
+            of the form [xmin, ymin, xmax, ymax]
+    """
+    result = inference_detector(model, image)
+    cuda_status = True if device == "cuda" else False
+
+    craft_boxes = []
+    result_boxes = []
+
+    for r in result[0][axis]:
+        if r[4] > thresh:
+            result_boxes.append(r.astype(int))
+
+    if len(result_boxes) == 0:
+        return 0, 0
+    else:
+        result_boxes = np.array(result_boxes)[:, :4]
+        result_boxes = result_boxes.tolist()
+
+        if craft == True:
+            with suppress_stdout():
+                craft = Craft(
+                    crop_type="box",
+                    cuda=cuda_status,
+                    long_size=max([image.shape[0], image.shape[1]]),
+                )
+                craft_result = craft.detect_text(image)
+
+                for box in np.array(craft_result["boxes"]):
+                    craft_boxes.append(
+                        list(box[0].astype(int)) + list(box[2].astype(int))
+                    )
+
+        combined_boxes = result_boxes + craft_boxes
+        pred_boxes = combined_boxes.copy()
+
+        if merge == True:
+            for i in range(len(combined_boxes)):
+                for k in range(len(combined_boxes)):
+                    if (k != i) and (
+                        get_overlap_status(combined_boxes[i], combined_boxes[k]) == True
+                    ):
+                        if (combined_boxes[i] in pred_boxes) and (
+                            get_area(combined_boxes[i]) < get_area(combined_boxes[k])
+                        ):
+                            pred_boxes.remove(combined_boxes[i])
+                    else:
+                        pass
+
+    return result, pred_boxes
+
+
 detection_dict = {
     "data.train.classes": ("table",),
     "data.val.classes": ("table",),
@@ -298,8 +375,8 @@ cell_dict = {
     "data.train.classes": ("cell",),
     "data.val.classes": ("cell",),
     "data.test.classes": ("cell",),
-    "data.val.pipeline.1.img_scale": (1333, 800),
-    "data.test.pipeline.1.img_scale": (1333, 800),
+    "data.val.pipeline.1.img_scale": (1924, 768),
+    "data.test.pipeline.1.img_scale": (1024, 768),
     "model.roi_head.bbox_head.0.num_classes": 1,
     "model.roi_head.bbox_head.1.num_classes": 1,
     "model.roi_head.bbox_head.2.num_classes": 1,
@@ -319,37 +396,8 @@ structure_dict = {
         "table column",
         "table column header",
     ),
-    "data.train.pipeline.3.policies.0.0.img_scale": [
-        (480, 1333),
-        (512, 1333),
-        (544, 1333),
-        (576, 1333),
-        (608, 1333),
-        (640, 1333),
-        (672, 1333),
-        (704, 1333),
-        (736, 1333),
-        (768, 1333),
-    ],
-    "data.train.pipeline.3.policies.1.0.img_scale": [
-        (400, 1333),
-        (500, 1333),
-        (600, 1333),
-    ],
-    "data.train.pipeline.3.policies.1.2.img_scale": [
-        (480, 1333),
-        (512, 1333),
-        (544, 1333),
-        (576, 1333),
-        (608, 1333),
-        (640, 1333),
-        (672, 1333),
-        (704, 1333),
-        (736, 1333),
-        (768, 1333),
-    ],
-    "data.val.pipeline.1.img_scale": (768, 600),
-    "data.test.pipeline.1.img_scale": (768, 600),
+    "data.val.pipeline.1.img_scale": (1024, 768),
+    "data.test.pipeline.1.img_scale": (1024, 768),
     "model.roi_head.bbox_head.0.num_classes": 2,
     "model.roi_head.bbox_head.1.num_classes": 2,
     "model.roi_head.bbox_head.2.num_classes": 2,

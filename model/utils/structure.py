@@ -15,11 +15,7 @@ copies or substantial portions of the Software.
 Utility functions to manipulate table structure
 """
 
-import os
-import os.path as osp
 import math
-import numpy as np
-import cv2
 import xml.etree.ElementTree as ET
 
 

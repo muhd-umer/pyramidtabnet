@@ -27,6 +27,7 @@ from mmdet.apis import inference_detector
 from .craft import Craft
 import sys, os
 from contextlib import contextmanager
+import itertools
 
 
 @contextmanager
@@ -222,63 +223,6 @@ def get_paste_location(mask):
     return paste_location
 
 
-def calculate_iou(box1, box2):
-    """
-    Computes the IoU of two boxes
-    """
-    x1_min, y1_min, x1_max, y1_max = box1
-    x2_min, y2_min, x2_max, y2_max = box2
-
-    x_min = max(x1_min, x2_min)
-    y_min = max(y1_min, y2_min)
-    x_max = min(x1_max, x2_max)
-    y_max = min(y1_max, y2_max)
-
-    intersection_area = max(0, x_max - x_min) * max(0, y_max - y_min)
-    box1_area = (x1_max - x1_min) * (y1_max - y1_min)
-    box2_area = (x2_max - x2_min) * (y2_max - y2_min)
-    union_area = box1_area + box2_area - intersection_area
-
-    return intersection_area / union_area
-
-
-def calculate_metrics(pred_boxes, gt_boxes, iou_threshold=0.5):
-    """
-    Computes precision, recall, and f1 score
-    """
-    true_positives = 0
-    false_positives = 0
-    false_negatives = 0
-
-    for pred_box in pred_boxes:
-        pred_class, xmin, ymin, xmax, ymax = pred_box
-        best_iou = iou_threshold
-        best_gt = None
-        for gt_box in gt_boxes:
-            gt_class, xmin_gt, ymin_gt, xmax_gt, ymax_gt = gt_box
-            if pred_class != gt_class:
-                continue
-            iou = calculate_iou(
-                (xmin, ymin, xmax, ymax), (xmin_gt, ymin_gt, xmax_gt, ymax_gt)
-            )
-            if iou > best_iou:
-                best_iou = iou
-                best_gt = gt_box
-
-        if best_gt is None:
-            false_positives += 1
-        else:
-            true_positives += 1
-            gt_boxes.remove(best_gt)
-
-    false_negatives = len(gt_boxes)
-    precision = true_positives / (true_positives + false_positives)
-    recall = true_positives / (true_positives + false_negatives)
-    f1_score = 2 * (precision * recall) / (precision + recall)
-
-    return precision, recall, f1_score
-
-
 def pascal_voc_bbox(path):
     """
     Extract all table bounding boxes from GT
@@ -299,13 +243,47 @@ def pascal_voc_bbox(path):
         return bbox_coordinates
 
 
-def get_preds(image, model, thresh, axis, merge=True, craft=False, device="cuda"):
+def merge_bounding_boxes(boxes, threshold):
+    """
+    Merge bounding boxes relatively near to each other
+    """
+    merged_boxes = []
+    # Iterate over each bounding box
+    for box in boxes:
+        # Initialize flag to check if box has been added to a merged box
+        added = False
+        # Iterate over each merged box
+        for i, mbox in enumerate(merged_boxes):
+            # Check if box is relatively and vertically near to current merged box
+            if (
+                abs(box[0] - mbox[2]) <= threshold
+                and abs(box[1] - mbox[3]) <= threshold
+            ):
+                # Update merged box with new coordinates
+                merged_boxes[i] = [
+                    min(mbox[0], box[0]),
+                    min(mbox[1], box[1]),
+                    max(mbox[2], box[2]),
+                    max(mbox[3], box[3]),
+                ]
+                added = True
+                break
+        # If box has not been added to a merged box, add it as a new merged box
+        if not added:
+            merged_boxes.append(box)
+
+    return merged_boxes
+
+
+def get_preds(
+    image, model, thresh, axis, merge=True, craft=False, device="cuda", confidence=False
+):
     """
     Detect boxes in the input image.
     Args:
         model (nn.Module): The loaded detector.
         img (np.ndarray): Loaded image.
-        thresh (float): Threshold for the bboxes and masks.
+        thresh (float): Threshold for the boxes and masks.
     Returns:
         result (tuple[list] or list): Detection results of
             of the form (bbox, segm)
@@ -315,10 +293,13 @@ def get_preds(image, model, thresh, axis, merge=True, craft=False, device="cuda"
     result = inference_detector(model, image)
     cuda_status = True if device == "cuda" else False
 
-    craft_boxes = []
     result_boxes = []
+    craft_boxes = []
+    conf = []
+    remove_index = []
 
     for r in result[0][axis]:
+        conf.append(r[4])
         if r[4] > thresh:
             result_boxes.append(r.astype(int))
 
@@ -332,6 +313,7 @@ def get_preds(image, model, thresh, axis, merge=True, craft=False, device="cuda"
             with suppress_stdout():
                 craft = Craft(
                     crop_type="box",
+                    text_threshold=0.5,
                     cuda=cuda_status,
                     long_size=max([image.shape[0], image.shape[1]]),
                 )
@@ -343,6 +325,7 @@ def get_preds(image, model, thresh, axis, merge=True, craft=False, device="cuda"
                     )
 
         combined_boxes = result_boxes + craft_boxes
+        premerge_boxes = combined_boxes.copy()
         pred_boxes = combined_boxes.copy()
 
         if merge == True:
@@ -351,12 +334,37 @@ def get_preds(image, model, thresh, axis, merge=True, craft=False, device="cuda"
                     if (k != i) and (
                         get_overlap_status(combined_boxes[i], combined_boxes[k]) == True
                     ):
-                        if (combined_boxes[i] in pred_boxes) and (
+                        if (combined_boxes[i] in premerge_boxes) and (
                             get_area(combined_boxes[i]) < get_area(combined_boxes[k])
                         ):
-                            pred_boxes.remove(combined_boxes[i])
+                            premerge_boxes.remove(combined_boxes[i])
+                            remove_index.append(i)
                     else:
                         pass
+
+            merged_boxes = merge_bounding_boxes(
+                premerge_boxes, int(image.shape[0] / 20)
+            )
+            pred_boxes = merged_boxes.copy()
+
+            for i in range(len(merged_boxes)):
+                for k in range(len(merged_boxes)):
+                    if (k != i) and (
+                        get_overlap_status(merged_boxes[i], merged_boxes[k]) == True
+                    ):
+                        if (merged_boxes[i] in premerge_boxes) and (
+                            get_area(merged_boxes[i]) < get_area(merged_boxes[k])
+                        ):
+                            premerge_boxes.remove(merged_boxes[i])
+                            remove_index.append(i)
+                    else:
+                        pass
+
+        if confidence:
+            for j in sorted(remove_index, reverse=True):
+                del conf[j]
+
+            return result, pred_boxes, conf
 
     return result, pred_boxes
 

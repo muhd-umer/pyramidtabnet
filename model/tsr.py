@@ -68,13 +68,13 @@ def parse_args():
     parser.add_argument(
         "--structure-weights",
         help="Structure checkpoint file to load weights from.",
-        default="weights/cell_det.pth",
+        default="weights/ptn_recognition.pth",
         required=False,
     )
     parser.add_argument(
         "--cell-weights",
         help="Cell checkpoint file to load weights from.",
-        default="weights/structure_rec.pth",
+        default="weights/ptn_cells.pth",
         required=False,
     )
     parser.add_argument(
@@ -190,7 +190,7 @@ if __name__ == "__main__":
             col_structure = get_column_stucture(cells, columns)
 
             if row_structure == {} or col_structure == {}:
-                print("Failed to fetch table structure.")
+                print(colored("Failed to fetch table structure."), "red")
 
             for cell in cells:
                 cell_write = etree.Element("cell")

@@ -66,7 +66,7 @@ def parse_args():
     parser.add_argument(
         "--weights",
         help="Checkpoint file to load weights from.",
-        default="weights/table_det.pth",
+        default="weights/ptn_detection.pth",
         required=False,
     )
     parser.add_argument(
@@ -144,8 +144,15 @@ if __name__ == "__main__":
         image = cv2.imread(osp.join(path, input), cv2.IMREAD_COLOR)
         image = image[:, :, :3]  # Removing possible alpha channel
 
-        result_tables, tables = get_preds(
-            image, table_det, 0.8, axis=0, merge=False, craft=False, device=args.device
+        result_tables, tables, conf = get_preds(
+            image,
+            table_det,
+            0.8,
+            axis=0,
+            merge=False,
+            craft=False,
+            device=args.device,
+            confidence=True,
         )
 
         # Exit the inference script if no predictions are made
@@ -170,16 +177,18 @@ if __name__ == "__main__":
 
             # Saving bounding box coordinates in a text file
             file = open(osp.join(save_dir, f"{base_name}.txt"), "w")
-            for table in tables:
+            for idx in range(len(tables)):
                 file.write(
                     "table "
-                    + str(table[0])
+                    + str(conf[idx])
                     + " "
-                    + str(table[1])
+                    + str(tables[idx][0])
                     + " "
-                    + str(table[2])
+                    + str(tables[idx][1])
                     + " "
-                    + str(table[3])
+                    + str(tables[idx][2])
+                    + " "
+                    + str(tables[idx][3])
                     + "\n"
                 )
             file.close()

@@ -22,7 +22,6 @@ warnings.filterwarnings("ignore")
 import os
 import os.path as osp
 import cv2
-import numpy as np
 import torch
 
 from mmdet.apis import inference_detector
@@ -124,9 +123,11 @@ if __name__ == "__main__":
     if args.device == "cuda":
         assert torch.cuda.is_available(), f"No CUDA Runtime found."
 
-    table_det = os.path.join(os.path.abspath(args.weights_dir), "table_det.pth")
-    structure_rec = os.path.join(os.path.abspath(args.weights_dir), "structure_rec.pth")
-    cell_det = os.path.join(os.path.abspath(args.weights_dir), "cell_det.pth")
+    table_det = os.path.join(os.path.abspath(args.weights_dir), "ptn_detection.pth")
+    structure_rec = os.path.join(
+        os.path.abspath(args.weights_dir), "ptn_recognition.pth"
+    )
+    cell_det = os.path.join(os.path.abspath(args.weights_dir), "ptn_cells.pth")
 
     config_file = args.config_file
 
@@ -155,7 +156,9 @@ if __name__ == "__main__":
         image = image[:, :, :3]  # Removing possible alpha channel
         save_tables = image.copy()
 
-        result_tables, tables = get_preds(image, det_model, 0.8, axis=0)
+        result_tables, tables, conf = get_preds(
+            image, det_model, 0.8, axis=0, confidence=True
+        )
 
         # Exit the inference script if no predictions are made
         if (result_tables, tables) == (0, 0):
@@ -176,6 +179,8 @@ if __name__ == "__main__":
             for outer_idx in range(len(tables)):
                 file.write(
                     "table "
+                    + str(conf[outer_idx])
+                    + " "
                     + str(tables[outer_idx][0])
                     + " "
                     + str(tables[outer_idx][1])

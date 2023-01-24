@@ -10,7 +10,7 @@ _It is recommended to create a new virtual environment so that updates/downgrade
 
 - Environment characteristics
   <br/>`python = 3.9.12` `torch = 1.11.0` `cuda = 11.3` `torchvision = 0.12.0`
-- This repo uses toolboxes provided by `OpenMMLab` to train and test models. Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for [installation instructions](https://mmdetection.readthedocs.io/en/latest/).
+- This repo uses toolboxes provided by `OpenMMLab` to train and test models. <br/> Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for in-depth [installation instructions](https://mmdetection.readthedocs.io/en/latest/) if you want train the model on your own dataset.
 
 ```python
 pip install -r requirements.txt
@@ -106,7 +106,7 @@ Weights, along with evaluation metrics, are linked in this section. Note: End-us
 
 | <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
 | --- | --- | --- | --- | --- | --- |
-| PyramidTabNet | ICDAR 2017-POD <br> ICDAR 2019 <br> UNLV <br> Marmot <br> PubLayNet <br> | - <br> - <br> - <br> - <br> - | - <br> - <br> - <br> - <br> - | - <br> - <br> - <br> - <br> - | [Link]() <br> [Link]() <br> [Link]() <br> [Link]() <br> [Link]() |
+| PyramidTabNet | ICDAR 2017-POD <br> ICDAR 2019 <br> UNLV <br> Marmot <br> TableBank <br> | 99.8 <br> - <br> 97.7 <br> 92.1 <br> 98.9 | 99.3 <br> - <br> 94.9 <br> 98.2 <br> 98.2 | 99.5 <br> - <br> 96.3 <br> 95.1 <br> 98.5 | [Link]() <br> [Link]() <br> [Link]() <br> [Link]() <br> [Link]() |
 
 </div>
 
@@ -117,15 +117,13 @@ Weights, along with evaluation metrics, are linked in this section. Note: End-us
 
 | <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
 | --- | --- | --- | --- | --- | --- |
-| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| - <br> - <br> - <br> | - <br> - <br> - <br>| - <br> - <br> - <br>| [Link]() <br> - <br> [Link]() |
+| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| 94.7 <br> - <br> - | 92.3 <br> - <br> - | 93.5 <br> - <br> - <br>| [Link]() <br> - <br> [Link]() |
 
 </div>
 
 _Note: FinTabNet fine-tuned model is for cell-detection._
 
 <div align="center">
-
-**Download the concatenated best weights file (.pt) from [this link]().**
 
 </div>
 

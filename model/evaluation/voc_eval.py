@@ -215,9 +215,6 @@ for txt_file in ground_truth_files_list:
     temp_path = os.path.join(DR_PATH, (file_id + ".txt"))
     if not os.path.exists(temp_path):
         error_msg = "Error. File not found: {}\n".format(temp_path)
-        error_msg += (
-            "(You can avoid this error message by running extra/intersect-gt-and-dr.py)"
-        )
         error(error_msg)
     lines_list = file_lines_to_list(txt_file)
     # create ground-truth dictionary
@@ -237,8 +234,6 @@ for txt_file in ground_truth_files_list:
                 " Expected: <class_name> <left> <top> <right> <bottom> ['difficult']\n"
             )
             error_msg += " Received: " + line
-            error_msg += "\n\nIf you have a <class_name> with spaces between words you should remove them\n"
-            error_msg += 'by running the script "remove_space.py" or "rename_class.py" in the "extra/" folder.'
             error(error_msg)
         # check if class is in the ignore list, if yes skip
         if class_name in args.ignore:
@@ -328,7 +323,6 @@ for class_index, class_name in enumerate(gt_classes):
         if class_index == 0:
             if not os.path.exists(temp_path):
                 error_msg = "Error. File not found: {}\n".format(temp_path)
-                error_msg += "(You can avoid this error message by running extra/intersect-gt-and-dr.py)"
                 error(error_msg)
         lines = file_lines_to_list(txt_file)
         for line in lines:

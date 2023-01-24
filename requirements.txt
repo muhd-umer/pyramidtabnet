@@ -4,10 +4,14 @@ albumentations==0.4.6
 torchinfo==1.7.0
 termcolor==1.1.0
 tabulate==0.8.10
-opencv-python==4.5.4
+opencv-python==4.5.4.58
 glob2==0.7
 tqdm==4.64.0
-Pillow>=9.2.0
 pascal-voc-writer==0.1.4
 gdown==4.5.1
 scipy==1.8.1
+craft-text-detector==0.4.3
+mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11.0/index.html
+mmdet==2.27.0
+mmcls==1.7.1
+Pillow>=9.0.0

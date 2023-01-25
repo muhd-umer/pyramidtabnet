@@ -101,29 +101,32 @@ python model/tsr.py --config-file path/to/config/file \
 
 ## Weights & Metrics
 
-Weights, along with evaluation metrics, are linked in this section. Note: End-user should place the downloaded weights in the [weights/](weights/) directory for a streamlined evaluation of scripts.
+Evaluation metrics are displayed in the following tables. Note: End-user should place the downloaded weights in the [weights/](weights/) directory for a streamlined evaluation of scripts.
 
-- Download the table detection models from the following table:
+- To download all the weights, execute:
+```powershell
+bash weights/get_weights.sh
+bash weights/fine_tuned.sh
+```
 <div align="center">
 
-### **Table Detection**
+### Table Detection
 
 | <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
 | --- | --- | --- | --- | --- | --- |
-| PyramidTabNet | ICDAR 2017-POD <br> ICDAR 2019 <br> UNLV <br> Marmot <br> TableBank <br> | 99.8 <br> - <br> 97.7 <br> 92.1 <br> 98.9 | 99.3 <br> - <br> 94.9 <br> 98.2 <br> 98.2 | 99.5 <br> - <br> 96.3 <br> 95.1 <br> 98.5 | [Link]() <br> [Link]() <br> [Link]() <br> [Link]() <br> [Link]() |
+| PyramidTabNet | ICDAR 2017-POD <br> ICDAR 2019 <br> UNLV <br> Marmot <br> TableBank <br> | 99.8 <br> - <br> 97.7 <br> 92.1 <br> 98.9 | 99.3 <br> - <br> 94.9 <br> 98.2 <br> 98.2 | 99.5 <br> 98.7 <br> 96.3 <br> 95.1 <br> 98.5 | [Link](https://github.com/muhd-umer/pyramidtabnet/releases/download/v0.1.0/icdar2017.pth) <br> [Link](https://github.com/muhd-umer/pyramidtabnet/releases/download/v0.1.0/icdar2019.pth) <br> [Link](https://github.com/muhd-umer/pyramidtabnet/releases/download/v0.1.0/unlv.pth) <br> [Link](https://github.com/muhd-umer/pyramidtabnet/releases/download/v0.1.0/marmot.pth) <br> [Link](https://github.com/muhd-umer/pyramidtabnet/releases/download/v0.1.0/tablebank.pth) |
 
 </div>
 
-- Download the table structure recognition models from the following table:
 <div align="center">
 
-### **Table Structure Recognition**
+### Table Structure Recognition
 
-| <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
-| --- | --- | --- | --- | --- | --- |
-| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| 94.7 <br> - <br> - | 92.3 <br> - <br> - | 93.5 <br> - <br> - <br>| [Link]() <br> - <br> [Link]() |
+| <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> |
+| --- | --- | --- | --- | --- |
+| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| 94.7 <br> 97.8 <br> 93.2 | 92.3 <br> 98.2 <br> 88.6 | 93.5 <br> 98.0 <br> 90.8|
 
-</div>
+</div> 
 
 _Note: FinTabNet fine-tuned model is for cell-detection._
 

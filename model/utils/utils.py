@@ -316,6 +316,8 @@ def get_preds(
                     text_threshold=0.5,
                     cuda=cuda_status,
                     long_size=max([image.shape[0], image.shape[1]]),
+                    weight_path_craft_net="weights/craft_mlt.pth",
+                    weight_path_refine_net="weights/craft_refiner.pth",
                 )
                 craft_result = craft.detect_text(image)
 

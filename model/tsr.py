@@ -152,7 +152,7 @@ if __name__ == "__main__":
     for input in input_list:
         image = cv2.imread(osp.join(path, input), cv2.IMREAD_COLOR)
         image = image[:, :, :3]  # Removing possible alpha channel
-
+        
         result_cells, cells = get_preds(
             image, cell_model, 0.5, axis=0, craft=True, device=args.device
         )
@@ -186,7 +186,7 @@ if __name__ == "__main__":
             col_structure = get_column_stucture(cells, columns)
 
             if row_structure == {} or col_structure == {}:
-                print(colored("Failed to fetch table structure."), "red")
+                print("Failed to fetch table structure.")
 
             for cell in cells:
                 cell_write = etree.Element("cell")

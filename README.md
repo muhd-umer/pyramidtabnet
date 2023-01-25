@@ -28,7 +28,7 @@ We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (f
 
 Refer to [augmentation](augmentation#data-augmentation) directory for instructions on how to use the scripts to generate new document images.
 
-## Run <a href="https://colab.research.google.com/github/muhd-umer/pyramidtabnet/blob/main/resources/colab.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a>
+## Run <a href="https://colab.research.google.com/github/muhd-umer/pyramidtabnet/blob/main/resources/pyramidtabnet.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a>
 
 Following sections provide instructions to evaluate and/or train PyramidTabNet on your own data.<br/>
 _Note: It is recommended to execute the scripts from the project root in order to utilize the relative paths to the test set._

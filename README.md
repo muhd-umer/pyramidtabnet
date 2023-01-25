@@ -83,7 +83,7 @@ python model/td.py --config-file path/to/config/file \
                    --input path/to/input/image or directory \
                    --weights path/to/detection/weights \
                    --device "cuda" \
-                   --save-detections
+                   --save
 ```
 
 ### Recognition Inference
@@ -96,7 +96,7 @@ python model/tsr.py --config-file path/to/config/file \
                     --structure-weights path/to/structure/weights \
                     --cell-weights path/to/cell/weights \
                     --device "cuda" \
-                    --save-detections
+                    --save
 ```
 
 ## Weights & Metrics

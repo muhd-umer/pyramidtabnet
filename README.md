@@ -11,16 +11,15 @@ _It is recommended to create a new virtual environment so that updates/downgrade
 - Environment characteristics
   <br/>`python = 3.9.12` `torch = 1.11.0` `cuda = 11.3` `torchvision = 0.12.0`
 - This repo uses toolboxes provided by `OpenMMLab` to train and test models. Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for [installation instructions](https://mmdetection.readthedocs.io/en/latest/) if you want to train your own model.
-- Alternatively, if all you want to do is to test the model, you can install the `openmim` package for installing `mmcv`. 
-```python
-pip install -U openmim
-mim install mmcv-full
-```
-- After `mmcv` has been successfully installed, execute the following:
+- Alternatively, if all you want to do is to test the model, you can install `mmdet` as a third-party package. Run:
 ```python
 pip install -r requirements.txt
 ```
-
+- After all the packages has been successfully installed, install `mmcv` by executing the following commands:
+```python
+pip install -U openmim
+mim install mmcv-full==1.6.0
+```
 ## Datasets
 
 We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (for evaluation). You can access the full cTDaR dataset from the following publicly available GitHub repo: [cTDaR - All Tracks](https://github.com/cndplab-founder/ICDAR2019_cTDaR). Other public datasets can be downloaded and placed in [data](data/) directory for training/evaluation.

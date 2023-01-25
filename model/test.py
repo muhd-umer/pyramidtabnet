@@ -35,6 +35,22 @@ from mmdet.utils import (
     update_data_root,
 )
 
+from termcolor import colored
+from contextlib import contextmanager
+import sys
+from sys import exit
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+
 
 def evaluate_table(xml_dir):
     """
@@ -136,11 +152,11 @@ if __name__ == "__main__":
     elif args.device == "cpu":
         print(
             colored(
-                "Device = 'cpu' -> slow_conv2d_cpu is not implemented for Half tensors; Setting cfg.fp16 to None.",
+                "Device = 'cpu' -> Evaluation test.py is not currently suppored on CPU. Try to switch to a CUDA runtime.",
                 "red",
             )
         )
-        cfg.fp16 = None
+        exit()
 
     cfg.device = args.device
 
@@ -192,40 +208,43 @@ if __name__ == "__main__":
         **cfg.data.get("test_dataloader", {}),
     }
 
-    rank, _ = get_dist_info()
+    with suppress_stdout():
+        rank, _ = get_dist_info()
 
-    if args.output is not None and rank == 0:
-        mmcv.mkdir_or_exist(osp.abspath(args.output))
-        json_file = osp.join(args.output, f"coco_metrics.json")
+        if args.output is not None and rank == 0:
+            mmcv.mkdir_or_exist(osp.abspath(args.output))
+            json_file = osp.join(args.output, f"coco_metrics.json")
 
-    # Build the PyTorch Dataloader
-    dataset = build_dataset(cfg.data.test)
-    data_loader = build_dataloader(dataset, **test_loader_cfg)
+        # Build the PyTorch Dataloader
+        dataset = build_dataset(cfg.data.test)
+        data_loader = build_dataloader(dataset, **test_loader_cfg)
 
-    # Build the detector and load the checkpoint weights.
-    cfg.model.train_cfg = None
-    model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))
+        # Build the detector and load the checkpoint weights.
+        cfg.model.train_cfg = None
+        model = build_detector(cfg.model, test_cfg=cfg.get("test_cfg"))
 
-    # Use half tensor which preserve memory, and hence is preferred.
-    fp16_cfg = cfg.get("fp16", None)
-    if fp16_cfg is not None:
-        wrap_fp16_model(model)
+        # Use half tensor which preserve memory, and hence is preferred.
+        fp16_cfg = cfg.get("fp16", None)
+        if fp16_cfg is not None:
+            wrap_fp16_model(model)
 
-    # Load weights into the config model.
-    checkpoint = load_checkpoint(model, args.weights, map_location="cpu")
+        # Load weights into the config model.
+        checkpoint = load_checkpoint(model, args.weights, map_location="cpu")
 
-    # Fuse Conv and BN to increase inference speed.
-    if args.fuse_conv_bn:
-        model = fuse_conv_bn(model)
+        # Fuse Conv and BN to increase inference speed.
+        if args.fuse_conv_bn:
+            model = fuse_conv_bn(model)
 
-    # For Backward compatibility; save class info in checkpoints
-    if "CLASSES" in checkpoint.get("meta", {}):
-        model.CLASSES = checkpoint["meta"]["CLASSES"]
-    else:
-        model.CLASSES = dataset.CLASSES
+        # For Backward compatibility; save class info in checkpoints
+        if "CLASSES" in checkpoint.get("meta", {}):
+            model.CLASSES = checkpoint["meta"]["CLASSES"]
+        else:
+            model.CLASSES = dataset.CLASSES
 
-    # Build DataParallel module and do testing on a single GPU.
-    model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
+        # Build DataParallel module and do testing on a single GPU.
+        model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
+
+    print(colored("Model loaded successfully.", "blue"))
     outputs_dict, outputs = evaluate(
         model, data_loader, args.save_images, args.output, args.threshold
     )

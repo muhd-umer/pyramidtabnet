@@ -345,7 +345,7 @@ def get_preds(
                         pass
 
             merged_boxes = merge_bounding_boxes(
-                premerge_boxes, int(image.shape[0] / 20)
+                premerge_boxes, int(image.shape[0] / 50)
             )
             pred_boxes = merged_boxes.copy()
 

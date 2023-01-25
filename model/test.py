@@ -212,7 +212,7 @@ if __name__ == "__main__":
         wrap_fp16_model(model)
 
     # Load weights into the config model.
-    checkpoint = load_checkpoint(model, args.det_weights, map_location="cpu")
+    checkpoint = load_checkpoint(model, args.weights, map_location="cpu")
 
     # Fuse Conv and BN to increase inference speed.
     if args.fuse_conv_bn:

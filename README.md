@@ -124,7 +124,7 @@ bash weights/fine_tuned.sh
 
 | <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> |
 | --- | --- | --- | --- | --- |
-| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| 94.7 <br> 97.8 <br> 93.2 | 92.3 <br> 98.2 <br> 88.6 | 93.5 <br> 98.0 <br> 90.8|
+| PyramidTabNet | ICDAR 2013 <br> SciTSR <br> FinTabNet <br>| 92.3 <br> 98.4 <br> 93.2 | 95.3 <br> 99.1 <br> 88.6 | 93.8 <br> 98.7 <br> 90.8|
 
 </div> 
 

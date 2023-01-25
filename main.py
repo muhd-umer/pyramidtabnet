@@ -87,6 +87,7 @@ def parse_args():
         default="cpu",
         required=False,
     )
+    parser.add_argument('--quiet', help="Perform inference with minimal console output.", action='store_true')
     args = parser.parse_args()
     return args
 
@@ -356,4 +357,6 @@ if __name__ == "__main__":
         file.write(etree.tostring(root, pretty_print=True, encoding="unicode"))
         file.close()
 
-        print(colored(f"Inference on {base_name} completed.", "blue"))
+        if not args.quiet:
+            print(colored(f"Inference on {input} completed.", "blue"))
+        

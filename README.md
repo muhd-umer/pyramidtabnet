@@ -159,4 +159,6 @@ Resolve it by passing in the correct command line argument for `--config-file`.
 
 3. The authors of [Craft Text Detector](https://arxiv.org/abs/1904.01941) for their awesome repository for text detection.
 
-4. [Google Colaboratory](https://github.com/googlecolab) for providing free-high end GPU resources for research and development. All of the code base was developed using their platform and could not be possible without it.
+4. The author of [mAP Repo](https://github.com/Cartucho/mAP) for providing a straightforward script to evaluate deep learning models for object detection metrics.
+
+5. [Google Colaboratory](https://github.com/googlecolab) for providing free-high end GPU resources for research and development. All of the code base was developed using their platform and could not be possible without it.

@@ -81,12 +81,8 @@ def parse_args():
         default="cpu",
         required=False,
     )
-    parser.add_argument(
-        "--save-detections",
-        help="Enable/disable saving of visualizations.",
-        action=argparse.BooleanOptionalAction,
-        required=False,
-    )
+    parser.add_argument('--save', help="Saves results along with visualization images.", action='store_true')
+    parser.add_argument('--quiet', help="Perform inference with minimal console output.", action='store_true')
     args = parser.parse_args()
     return args
 
@@ -169,7 +165,7 @@ if __name__ == "__main__":
             save_dir = osp.abspath(args.output)
             base_name = input[:-4]
 
-            if args.save_detections:
+            if args.save:
                 base_name = "bbox_detections"
                 save_dir = osp.join(osp.abspath(args.output), input[:-4])
 
@@ -193,9 +189,10 @@ if __name__ == "__main__":
                 )
             file.close()
 
-            print(colored(f"Inference on {input} completed.", "blue"))
+            if not args.quiet:
+                print(colored(f"Inference on {input} completed.", "blue"))
 
-            if args.save_detections:  # Saving results
+            if args.save:  # Saving results
                 save_tables = image.copy()
 
                 show_result_pyplot(

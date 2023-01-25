@@ -4,8 +4,8 @@
 
 Transformers have been making great strides in the field of computer vision in recent years, and their impact has been particularly noteworthy in the domain of document analysis. In this paper, we introduce PyramidTabNet (PTN), a method that builds upon the performance of the convolution-less Pyramid Vision Transformer by incorporating a structural modification data augmentation technique before training the architecture. Specifically, the augmentation process consists of three sequential pipelines, namely, clustering, fusion, and patching, for generation of new document images as well as for masking text. Our proposed pipeline demonstrates significant performance improvements over other augmentation techniques and surpasses recent works in table detection metrics. Additionally, it achieves performance comparable to the current state-of-the-art methods for structure recognition tasks.
 
-## Dependencies
 
+## Dependencies
 _It is recommended to create a new virtual environment so that updates/downgrades of packages do not break other projects._
 
 - Environment characteristics
@@ -28,7 +28,7 @@ We provide the test set of `cTDaR - TRACK A` in `COCO JSON format` by default (f
 
 Refer to [augmentation](augmentation#data-augmentation) directory for instructions on how to use the scripts to generate new document images.
 
-## Run
+## Run <a href="https://colab.research.google.com/drive/15uApR0ZwLiRVnOZtG_426Z0Lgyk-IZyc"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/> </a>
 
 Following sections provide instructions to evaluate and/or train PyramidTabNet on your own data.<br/>
 _Note: It is recommended to execute the scripts from the project root in order to utilize the relative paths to the test set._

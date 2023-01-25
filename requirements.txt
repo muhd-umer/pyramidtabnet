@@ -11,6 +11,6 @@ pascal-voc-writer
 gdown
 scipy
 craft-text-detector==0.4.3
-mmdet==2.27.0
+mmdet==2.25.0
 mmcls==0.25.0
 Pillow==9.0.0

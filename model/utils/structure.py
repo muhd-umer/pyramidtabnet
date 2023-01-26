@@ -71,199 +71,102 @@ def indexed_addition(position_list, index):
     return position_list
 
 
-def get_row_structure(cells, columns):
+def columns_to_lines(column_boxes):
     """
-    Get row structure from detected cells and columns
-    Returns: dictionary of format {"cell_bbox": [row_position]
-                                    ...                     }
+    Converts bounding boxes of [xmin, ymin, xmax, ymax] format
+    to [xmin, xmax]
     """
-    row_identifiers = []
-    columns = sort_by_element(columns, 0)
-
-    for cell in cells:
-        if cell_in_column(cell, columns[0]) is not None:
-            row_identifiers.append(cell)
-
-    row_identifiers = sort_by_element(row_identifiers, 1)
-    row_extension = []
-
-    for cell in row_identifiers:
-        row_extension.append(int((cell[1] + cell[3]) / 2))
-
-    cells = sort_by_element(cells, 1)
-    row_positions = []
-    identified_rows = []
-    unidentified_rows = cells.copy()
-
-    for cell in cells:
-        for row in row_extension:
-            if row_in_box(row, cell) is not None:
-                row_positions.append([cell, row_extension.index(row)])
-                identified_rows.append(cell)
-
-    unidentified_rows = [x for x in unidentified_rows if x not in identified_rows]
-    unidentified_rc = [int((coord[1] + coord[3]) / 2) for coord in unidentified_rows]
-    supp_rows = []
-
-    for r in range(len(row_extension)):
-        if r == 0:
-            for c in range(len(unidentified_rc)):
-                if unidentified_rc[c] < row_extension[r]:
-                    supp_rows.append(
-                        [
-                            unidentified_rows[c],
-                            r + 0.5,
-                        ]
-                    )
-
-        if r == len(row_extension) - 1:
-            for c in range(len(unidentified_rc)):
-                if unidentified_rc[c] > row_extension[r]:
-                    supp_rows.append(
-                        [
-                            unidentified_rows[c],
-                            r + 0.5,
-                        ]
-                    )
-        else:
-            for c in range(len(unidentified_rc)):
-                if (
-                    unidentified_rc[c] > row_extension[r]
-                    and unidentified_rc[c] < row_extension[r + 1]
-                ):
-                    supp_rows.append(
-                        [
-                            unidentified_rows[c],
-                            r + 0.5,
-                        ]
-                    )
-
-    for item in supp_rows:
-        row_positions.append(item)
-
-    row_positions = sort_by_element(row_positions, 1)
-
-    for idx in range(len(row_positions)):
-        if row_positions[idx][1] % 1 != 0:
-            row_positions[idx][1] = math.ceil(row_positions[idx][1])
-            indexed_addition(row_positions[idx], idx)
-
-    # Define row structure dictionary
-    row_cells = []
-    row_index = []
-
-    for item in row_positions:
-        row_cells.append(item[0])
-        row_index.append(item[1])
-
-    row_structure = {str(item): [] for item in row_cells}
-
-    for item in row_positions:
-        row_structure[str(item[0])].append(item[1])
-
-    return row_structure
+    return [[column[0], column[2]] for column in column_boxes]
 
 
-def get_column_stucture(cells, columns):
+def column_mapping(columns, cells):
     """
     Get column structure from detected cells and columns
     Returns: dictionary of format {"cell_bbox": [col_position]
                                     ...                     }
     """
-    cells = sort_by_element(cells, 1)
-    col_positions = []
-    identified_cols = []
-    unidentified_cols = cells.copy()
+    column_mapping = {}
 
     for cell in cells:
-        for col in columns:
-            if cell_in_column(cell, col) is not None:
-                col_positions.append([cell, columns.index(col)])
-                identified_cols.append(cell)
+        cell = tuple(cell)
+        xmin, _, xmax, _ = cell
 
-    unidentified_cols = [x for x in unidentified_cols if x not in identified_cols]
-    unidentified_cc = [[int(coord[0]), int(coord[2])] for coord in unidentified_cols]
-    supp_cols = []
+        for i in range(len(columns)):
+            if i == 0:
+                if xmin <= columns[i][1]:
+                    column_mapping[cell] = (i, i)
+                    break
 
-    for col in range(len(columns)):
-        if col == 0:
-            for c in range(len(unidentified_cc)):
-                if col_in_box(unidentified_cc[c][0], columns[col]) and col_in_box(
-                    unidentified_cc[c][1], columns[col]
-                ):
-                    supp_cols.append(
-                        [
-                            unidentified_cols[c],
-                            col,
-                        ]
-                    )
-                elif col_in_box(unidentified_cc[c][0], columns[col]) or col_in_box(
-                    unidentified_cc[c][1], columns[col]
-                ):
-                    supp_cols.append(
-                        [
-                            unidentified_cols[c],
-                            col,
-                        ]
-                    )
+            elif i == len(columns) - 1:
+                if xmax >= columns[i][0]:
+                    column_mapping[cell] = (i, i)
+                    break
 
-        elif col == len(columns) - 1:
-            for c in range(len(unidentified_cc)):
-                if col_in_box(unidentified_cc[c][0], columns[col]) and col_in_box(
-                    unidentified_cc[c][1], columns[col]
-                ):
-                    supp_cols.append(
-                        [
-                            unidentified_cols[c],
-                            col,
-                        ]
-                    )
-                elif col_in_box(unidentified_cc[c][0], columns[col]) or col_in_box(
-                    unidentified_cc[c][1], columns[col]
-                ):
-                    supp_cols.append(
-                        [
-                            unidentified_cols[c],
-                            col,
-                        ]
-                    )
-        else:
-            for c in range(len(unidentified_cc)):
-                if col_in_box(unidentified_cc[c][0], columns[col]) and col_in_box(
-                    unidentified_cc[c][1], columns[col]
-                ):
-                    supp_cols.append(
-                        [
-                            unidentified_cols[c],
-                            col,
-                        ]
-                    )
-                elif col_in_box(unidentified_cc[c][0], columns[col]) or col_in_box(
-                    unidentified_cc[c][1], columns[col]
-                ):
-                    supp_cols.append(
-                        [
-                            unidentified_cols[c],
-                            col,
-                        ]
-                    )
+            else:
+                if columns[i][0] <= xmin <= columns[i][1]:
+                    column_mapping[cell] = (i, i)
+                    break
+                elif columns[i][1] < xmin < columns[i + 1][0]:
+                    column_mapping[cell] = (i, i + 1)
+                    break
 
-    for item in supp_cols:
-        col_positions.append(item)
+    return column_mapping
 
-    col_positions = sort_by_element(col_positions, 1)
 
-    # Define column structure dictionary
-    col_cells = []
-    col_index = []
+def columns_to_lines(column_boxes):
+    """
+    Converts [xmin, ymin, xmax, ymax] to [xmin, xmax] lines
+    """
+    return [[column[0], column[2]] for column in column_boxes]
 
-    for item in col_positions:
-        col_cells.append(item[0])
-        col_index.append(item[1])
 
-    col_structure = {str(item): [] for item in col_cells}
+def count_columns(cells_dict):
+    column_count = {}
+    column_cells = {}
 
-    for item in col_positions:
-        col_structure[str(item[0])].append(item[1])
+    for cells, columns in cells_dict.items():
+        start_column, end_column = columns
 
-    return col_structure
+        for column in range(start_column, end_column + 1):
+            if column in column_count:
+                column_count[column] += 1
+                column_cells[column].append(cells[1])
+            else:
+                column_count[column] = 1
+                column_cells[column] = [cells[1]]
+
+    highest_column = max(column_count, key=column_count.get)
+
+    return highest_column, column_cells[highest_column]
+
+
+def row_mapping(rows, cells):
+    """
+    Get row structure from detected cells and columns
+    Returns: dictionary of format {"cell_bbox": [row_position]
+                                    ...                     }
+    """
+    row_mapping = {}
+    sorted_rows = sorted(rows)
+
+    for cell in cells:
+        cell = tuple(cell)
+        _, ymin, _, ymax = cell
+        start_row, end_row = None, None
+
+        for i in range(len(sorted_rows)):
+            if start_row is None:
+                if ymin <= sorted_rows[i]:
+                    start_row = rows.index(sorted_rows[i])
+            if ymax > sorted_rows[i]:
+                end_row = rows.index(sorted_rows[i])
+
+        if start_row is None:
+            start_row = end_row
+
+        if end_row is None:
+            end_row = start_row
+
+        row_mapping[cell] = (start_row, end_row)
+
+    return row_mapping

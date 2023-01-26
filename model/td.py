@@ -81,8 +81,16 @@ def parse_args():
         default="cpu",
         required=False,
     )
-    parser.add_argument('--save', help="Saves results along with visualization images.", action='store_true')
-    parser.add_argument('--quiet', help="Perform inference with minimal console output.", action='store_true')
+    parser.add_argument(
+        "--save",
+        help="Saves results along with visualization images.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--quiet",
+        help="Perform inference with minimal console output.",
+        action="store_true",
+    )
     args = parser.parse_args()
     return args
 

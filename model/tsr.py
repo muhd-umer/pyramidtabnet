@@ -31,8 +31,10 @@ import argparse
 from utils import (
     structure_dict,
     cell_dict,
-    get_column_stucture,
-    get_row_structure,
+    column_mapping,
+    row_mapping,
+    count_columns,
+    columns_to_lines,
     get_preds,
 )
 from termcolor import colored
@@ -89,8 +91,16 @@ def parse_args():
         default="cpu",
         required=False,
     )
-    parser.add_argument('--save', help="Saves results along with visualization images.", action='store_true')
-    parser.add_argument('--quiet', help="Perform inference with minimal console output.", action='store_true')
+    parser.add_argument(
+        "--save",
+        help="Saves results along with visualization images.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--quiet",
+        help="Perform inference with minimal console output.",
+        action="store_true",
+    )
     args = parser.parse_args()
     return args
 
@@ -152,16 +162,16 @@ if __name__ == "__main__":
     for input in input_list:
         image = cv2.imread(osp.join(path, input), cv2.IMREAD_COLOR)
         image = image[:, :, :3]  # Removing possible alpha channel
-        
+
         result_cells, cells = get_preds(
             image, cell_model, 0.5, axis=0, craft=True, device=args.device
         )
-        result_columns, columns = get_preds(
+        result_columns, column_boxes = get_preds(
             image, structure_model, 0.5, axis=0, merge=False, device=args.device
         )
 
         # Exit the inference script if no predictions are made
-        if (result_cells, cells) == (0, 0) or (result_columns, columns) == (0, 0):
+        if (result_cells, cells) == (0, 0) or (result_columns, column_boxes) == (0, 0):
             print(
                 colored(
                     f"No predictions were made in image: {input}",
@@ -182,8 +192,13 @@ if __name__ == "__main__":
 
             root = etree.Element("document")
 
-            row_structure = get_row_structure(cells, columns)
-            col_structure = get_column_stucture(cells, columns)
+            columns = columns_to_lines(column_boxes)
+            col_structure = column_mapping(columns, cells)
+
+            _, rows = count_columns(col_structure)
+            rows = list(set(rows))
+
+            row_structure = row_mapping(rows, cells)
 
             if row_structure == {} or col_structure == {}:
                 print("Failed to fetch table structure.")
@@ -192,8 +207,8 @@ if __name__ == "__main__":
                 cell_write = etree.Element("cell")
 
                 try:
-                    row_info = row_structure[str(cell)]
-                    col_info = col_structure[str(cell)]
+                    row_info = row_structure[tuple(cell)]
+                    col_info = col_structure[tuple(cell)]
 
                 except KeyError:
                     continue
@@ -243,11 +258,11 @@ if __name__ == "__main__":
                         2,
                     )
 
-                for column in columns:
+                for column_box in column_boxes:
                     save_columns = cv2.rectangle(
                         save_columns,
-                        (column[0], column[1]),
-                        (column[2], column[3]),
+                        (column_box[0], column_box[1]),
+                        (column_box[2], column_box[3]),
                         (255, 0, 255),
                         2,
                     )

@@ -38,8 +38,10 @@ from model import (
     detection_dict,
     structure_dict,
     cell_dict,
-    get_column_stucture,
-    get_row_structure,
+    column_mapping,
+    row_mapping,
+    count_columns,
+    columns_to_lines,
     get_preds,
 )
 
@@ -87,7 +89,11 @@ def parse_args():
         default="cpu",
         required=False,
     )
-    parser.add_argument('--quiet', help="Perform inference with minimal console output.", action='store_true')
+    parser.add_argument(
+        "--quiet",
+        help="Perform inference with minimal console output.",
+        action="store_true",
+    )
     args = parser.parse_args()
     return args
 
@@ -215,148 +221,155 @@ if __name__ == "__main__":
                 save_tables,
             )
 
-        root = etree.Element("document")
+            root = etree.Element("document")
+            file = open(osp.join(save_dir, "structure.xml"), "w")
+            file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
 
-        for inner_idx in range(len(tables)):
-            table_image = cv2.imread(osp.join(save_dir, f"table_{inner_idx}.png"))
-            table_image = table_image[:, :, :3]  # Removing possible alpha channel
-            save_cells = table_image.copy()
-            save_columns = table_image.copy()
+            for inner_idx in range(len(tables)):
+                table_image = cv2.imread(osp.join(save_dir, f"table_{inner_idx}.png"))
+                table_image = table_image[:, :, :3]  # Removing possible alpha channel
+                save_cells = table_image.copy()
+                save_columns = table_image.copy()
 
-            result_cells, cells = get_preds(
-                table_image, cell_model, 0.3, axis=0, craft=True, device=args.device
-            )
-            result_columns, columns = get_preds(
-                table_image,
-                structure_model,
-                0.3,
-                axis=0,
-                merge=False,
-                device=args.device,
-            )
-
-            tableXML = etree.Element("table")
-            tabelCoords = etree.Element(
-                "Coords",
-                points=str(tables[inner_idx][0])
-                + ","
-                + str(tables[inner_idx][1])
-                + " "
-                + str(tables[inner_idx][2])
-                + ","
-                + str(tables[inner_idx][3])
-                + " "
-                + str(tables[inner_idx][2])
-                + ","
-                + str(tables[inner_idx][3])
-                + " "
-                + str(tables[inner_idx][2])
-                + ","
-                + str(tables[inner_idx][1]),
-            )
-            tableXML.append(tabelCoords)
-
-            # Exit the inference script if no cells are detected.
-            if (result_cells, cells) == (0, 0) or (result_columns, columns) == (0, 0):
-                print(
-                    colored(
-                        f"No cells were detected in image: table_{outer_idx}.png",
-                        "red",
-                    )
+                result_cells, cells = get_preds(
+                    table_image, cell_model, 0.3, axis=0, craft=True, device=args.device
                 )
-                exit()
+                result_columns, column_boxes = get_preds(
+                    table_image,
+                    structure_model,
+                    0.3,
+                    axis=0,
+                    merge=False,
+                    device=args.device,
+                )
 
-            else:
-                row_structure = get_row_structure(cells, columns)
-                col_structure = get_column_stucture(cells, columns)
-
-                if row_structure == {} or col_structure == {}:
-                    print("Failed to fetch table structure.")
-
-                for cell in cells:
-                    cellXML = etree.Element("cell")
-
-                    try:
-                        row_info = row_structure[str(cell)]
-                        col_info = col_structure[str(cell)]
-
-                    except KeyError:
-                        continue
-
-                    start_col, start_row, end_col, end_row = (
-                        min(col_info),
-                        min(row_info),
-                        max(col_info),
-                        max(row_info),
+                # Exit the inference script if no cells are detected.
+                if (result_cells, cells) == (0, 0) or (
+                    result_columns,
+                    column_boxes,
+                ) == (0, 0):
+                    print(
+                        colored(
+                            f"No cells were detected in image: table_{inner_idx}.png",
+                            "red",
+                        )
                     )
+                    exit()
 
-                    cellXML.set("start-col", str(start_col))
-                    cellXML.set("start-row", str(start_row))
-                    cellXML.set("end-col", str(end_col))
-                    cellXML.set("end-row", str(end_row))
-
-                    c1 = (
-                        str(cell[0] + tables[inner_idx][0])
+                else:
+                    tableXML = etree.Element("table")
+                    tabelCoords = etree.Element(
+                        "Coords",
+                        points=str(tables[inner_idx][0])
                         + ","
-                        + str(cell[1] + tables[inner_idx][1])
-                    )
-                    c2 = (
-                        str(cell[0] + tables[inner_idx][0])
+                        + str(tables[inner_idx][1])
+                        + " "
+                        + str(tables[inner_idx][2])
                         + ","
-                        + str(cell[3] + tables[inner_idx][1])
-                    )
-                    c3 = (
-                        str(cell[2] + tables[inner_idx][0])
+                        + str(tables[inner_idx][3])
+                        + " "
+                        + str(tables[inner_idx][2])
                         + ","
-                        + str(cell[3] + tables[inner_idx][1])
-                    )
-                    c4 = (
-                        str(cell[2] + tables[inner_idx][0])
+                        + str(tables[inner_idx][3])
+                        + " "
+                        + str(tables[inner_idx][2])
                         + ","
-                        + str(cell[1] + tables[inner_idx][1])
+                        + str(tables[inner_idx][1]),
                     )
+                    tableXML.append(tabelCoords)
 
-                    coords = etree.Element(
-                        "Coords", points=c1 + " " + c2 + " " + c3 + " " + c4
-                    )
+                    columns = columns_to_lines(column_boxes)
+                    col_structure = column_mapping(columns, cells)
 
-                    cellXML.append(coords)
-                    tableXML.append(cellXML)
+                    _, rows = count_columns(col_structure)
+                    rows = list(set(rows))
 
-                root.append(tableXML)
+                    row_structure = row_mapping(rows, cells)
 
-                for cell in cells:
-                    save_cells = cv2.rectangle(
+                    if row_structure == {} or col_structure == {}:
+                        print("Failed to fetch table structure.")
+
+                    for cell in cells:
+                        cellXML = etree.Element("cell")
+
+                        try:
+                            row_info = row_structure[tuple(cell)]
+                            col_info = col_structure[tuple(cell)]
+
+                        except KeyError:
+                            continue
+
+                        start_col, start_row, end_col, end_row = (
+                            min(col_info),
+                            min(row_info),
+                            max(col_info),
+                            max(row_info),
+                        )
+
+                        cellXML.set("start-col", str(start_col))
+                        cellXML.set("start-row", str(start_row))
+                        cellXML.set("end-col", str(end_col))
+                        cellXML.set("end-row", str(end_row))
+
+                        c1 = (
+                            str(cell[0] + tables[inner_idx][0])
+                            + ","
+                            + str(cell[1] + tables[inner_idx][1])
+                        )
+                        c2 = (
+                            str(cell[0] + tables[inner_idx][0])
+                            + ","
+                            + str(cell[3] + tables[inner_idx][1])
+                        )
+                        c3 = (
+                            str(cell[2] + tables[inner_idx][0])
+                            + ","
+                            + str(cell[3] + tables[inner_idx][1])
+                        )
+                        c4 = (
+                            str(cell[2] + tables[inner_idx][0])
+                            + ","
+                            + str(cell[1] + tables[inner_idx][1])
+                        )
+
+                        coords = etree.Element(
+                            "Coords", points=c1 + " " + c2 + " " + c3 + " " + c4
+                        )
+
+                        cellXML.append(coords)
+                        tableXML.append(cellXML)
+
+                    root.append(tableXML)
+
+                    for cell in cells:
+                        save_cells = cv2.rectangle(
+                            save_cells,
+                            (cell[0], cell[1]),
+                            (cell[2], cell[3]),
+                            (255, 0, 0),
+                            2,
+                        )
+
+                    for column_box in column_boxes:
+                        save_columns = cv2.rectangle(
+                            save_columns,
+                            (column_box[0], column_box[1]),
+                            (column_box[2], column_box[3]),
+                            (255, 0, 255),
+                            2,
+                        )
+
+                    cv2.imwrite(
+                        osp.join(save_dir, f"table_{inner_idx}_cells.png"),
                         save_cells,
-                        (cell[0], cell[1]),
-                        (cell[2], cell[3]),
-                        (255, 0, 0),
-                        2,
                     )
-
-                for column in columns:
-                    save_columns = cv2.rectangle(
+                    cv2.imwrite(
+                        osp.join(save_dir, f"table_{inner_idx}_columns.png"),
                         save_columns,
-                        (column[0], column[1]),
-                        (column[2], column[3]),
-                        (255, 0, 0),
-                        2,
                     )
 
-                cv2.imwrite(
-                    osp.join(save_dir, f"table_{inner_idx}_cells.png"),
-                    save_cells,
-                )
-                cv2.imwrite(
-                    osp.join(save_dir, f"table_{inner_idx}_columns.png"),
-                    save_columns,
-                )
+            file.write(etree.tostring(root, pretty_print=True, encoding="unicode"))
+            file.close()
 
-        file = open(osp.join(save_dir, "structure.xml"), "w")
-        file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-        file.write(etree.tostring(root, pretty_print=True, encoding="unicode"))
-        file.close()
-
-        if not args.quiet:
-            print(colored(f"Inference on {input} completed.", "blue"))
-        
+            if not args.quiet:
+                print(colored(f"Inference on {input} completed.", "blue"))

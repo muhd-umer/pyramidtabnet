@@ -313,7 +313,9 @@ def get_preds(
             with suppress_stdout():
                 craft = Craft(
                     crop_type="box",
-                    text_threshold=0.5,
+                    text_threshold=0.4,
+                    link_threshold=0.7,
+                    refiner=True,
                     cuda=cuda_status,
                     long_size=max([image.shape[0], image.shape[1]]),
                     weight_path_craft_net="weights/craft_mlt.pth",
@@ -327,7 +329,6 @@ def get_preds(
                     )
 
         combined_boxes = result_boxes + craft_boxes
-        premerge_boxes = combined_boxes.copy()
         pred_boxes = combined_boxes.copy()
 
         if merge == True:
@@ -336,28 +337,10 @@ def get_preds(
                     if (k != i) and (
                         get_overlap_status(combined_boxes[i], combined_boxes[k]) == True
                     ):
-                        if (combined_boxes[i] in premerge_boxes) and (
+                        if (combined_boxes[i] in pred_boxes) and (
                             get_area(combined_boxes[i]) < get_area(combined_boxes[k])
                         ):
-                            premerge_boxes.remove(combined_boxes[i])
-                            remove_index.append(i)
-                    else:
-                        pass
-
-            merged_boxes = merge_bounding_boxes(
-                premerge_boxes, int(image.shape[0] / 50)
-            )
-            pred_boxes = merged_boxes.copy()
-
-            for i in range(len(merged_boxes)):
-                for k in range(len(merged_boxes)):
-                    if (k != i) and (
-                        get_overlap_status(merged_boxes[i], merged_boxes[k]) == True
-                    ):
-                        if (merged_boxes[i] in premerge_boxes) and (
-                            get_area(merged_boxes[i]) < get_area(merged_boxes[k])
-                        ):
-                            premerge_boxes.remove(merged_boxes[i])
+                            pred_boxes.remove(combined_boxes[i])
                             remove_index.append(i)
                     else:
                         pass

@@ -164,10 +164,10 @@ if __name__ == "__main__":
         image = image[:, :, :3]  # Removing possible alpha channel
 
         result_cells, cells = get_preds(
-            image, cell_model, 0.5, axis=0, craft=True, device=args.device
+            image, cell_model, 0.3, axis=0, craft=True, device=args.device
         )
         result_columns, column_boxes = get_preds(
-            image, structure_model, 0.5, axis=0, merge=False, device=args.device
+            image, structure_model, 0.3, axis=0, merge=False, device=args.device
         )
 
         # Exit the inference script if no predictions are made

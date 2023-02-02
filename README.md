@@ -110,7 +110,7 @@ bash weights/fine_tuned.sh
 ```
 <div align="center">
 
-### Table Detection
+**Table Detection**
 
 | <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> | <div align="center">Link</div> |
 | --- | --- | --- | --- | --- | --- |
@@ -120,7 +120,7 @@ bash weights/fine_tuned.sh
 
 <div align="center">
 
-### Table Structure Recognition
+**Table Structure Recognition**
 
 | <div align="center">Model</div> | <div align="center">Dataset</div> | <div align="center">Precision</div> | <div align="center">Recall</div> | <div align="center">F1</div> |
 | --- | --- | --- | --- | --- |

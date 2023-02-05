@@ -10,6 +10,7 @@ tqdm==4.64.0
 pascal-voc-writer
 gdown
 scipy
+lxml
 craft-text-detector==0.4.3
 mmdet==2.25.0
 mmcls==0.25.0

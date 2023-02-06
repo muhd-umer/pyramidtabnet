@@ -10,6 +10,9 @@ _It is recommended to create a new virtual environment so that updates/downgrade
 
 - Environment characteristics
   <br/>`python = 3.9.12` `torch = 1.11.0` `cuda = 11.3` `torchvision = 0.12.0`
+```
+conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
+```
 - This repo uses toolboxes provided by `OpenMMLab` to train and test models. Head over to the official documentation of [MMDetection](https://github.com/open-mmlab/mmdetection) for [installation instructions](https://mmdetection.readthedocs.io/en/latest/) if you want to train your own model.
 - Alternatively, if all you want to do is to test the model, you can install `mmdet` as a third-party package. Run:
 ```python
@@ -19,6 +22,10 @@ pip install -r requirements.txt
 ```python
 pip install -U openmim
 mim install mmcv-full==1.6.0
+```
+- Alternatively, you can install `mmcv` using pip as:
+```
+pip install mmcv-full==1.6.0 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11/index.html
 ```
 ## Datasets
 

@@ -5,7 +5,7 @@
 > [Muhammad Ahmed Mohsin](https://github.com/ahmd-mohsin),
 > [Adnan Ul-Hasan](https://dll.seecs.nust.edu.pk/author/adnan_ul_hassan/),
 > and [Faisal Shafait](https://tukl.seecs.nust.edu.pk/members/faisal_shafait.html)
-> <br>
+
 > Presented at [ICDAR 2023: International Conference on Document Analysis and Recognition](https://icdar2023.org/)<br>
 > [Springer Link](https://link.springer.com/chapter/10.1007/978-3-031-41734-4_26)<br>
 

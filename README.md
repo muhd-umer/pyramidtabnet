@@ -1,6 +1,6 @@
 # PyramidTabNet
 
-<img align="right" width="250" height="395" src="https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-41734-4?as=webp"/>
+[<img align="right" width="250" height="395" src="https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-41734-4?as=webp"/>](https://link.springer.com/book/10.1007/978-3-031-41676-7)
 
 > **PyramidTabNet: Transformer-Based Table Recognition in Image-Based Documents**<br>
 > [Muhammad Umer](https://github.com/muhd-umer),

@@ -1,18 +1,16 @@
 # PyramidTabNet
 
-<img align="right" width="230" height="341" src="https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-41734-4?as=webp"/>
+<img align="right" width="250" height="395" src="https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-41734-4?as=webp"/>
 
 > **PyramidTabNet: Transformer-Based Table Recognition in Image-Based Documents**<br>
 > [Muhammad Umer](https://github.com/muhd-umer),
 > [Muhammad Ahmed Mohsin](https://github.com/ahmd-mohsin),
 > [Adnan Ul-Hasan](https://dll.seecs.nust.edu.pk/author/adnan_ul_hassan/),
-> and [Faisal Shafait](https://tukl.seecs.nust.edu.pk/members/faisal_shafait.html)
-
-
+> and [Faisal Shafait](https://tukl.seecs.nust.edu.pk/members/faisal_shafait.html)<br>
 > Presented at [ICDAR 2023: International Conference on Document Analysis and Recognition](https://icdar2023.org/)<br>
 > [Springer Link](https://link.springer.com/chapter/10.1007/978-3-031-41734-4_26)<br>
 
-Table detection and structure recognition is an important step in document analysis systems. Deep learning based transformer models have recently demonstrated significant success in various computer vision and document analysis tasks. In this paper, we introduce PyramidTabNet (PTN), a method that builds upon Convolution-less Pyramid Vision Transformer to detect tables in document images. Furthermore, we present a tabular image generative augmentation technique to effectively train the architecture. The proposed augmentation process consists of three steps, namely, clustering, fusion, and patching, for the generation of new document images containing tables. Our proposed pipeline demonstrates significant performance improvements for table detection on several standard datasets. Additionally, it achieves performance comparable to the state-of-the-art methods for structure recognition tasks.
+In this paper, we introduce PyramidTabNet (PTN), a method that builds upon Convolution-less Pyramid Vision Transformer to detect tables in document images. Furthermore, we present a tabular image generative augmentation technique to effectively train the architecture. The proposed augmentation process consists of three steps, namely, clustering, fusion, and patching, for the generation of new document images containing tables. Our proposed pipeline demonstrates significant performance improvements for table detection on several standard datasets. Additionally, it achieves performance comparable to the state-of-the-art methods for structure recognition tasks.
 
 ## Dependencies
 _It is recommended to create a new virtual environment so that updates/downgrades of packages do not break other projects._

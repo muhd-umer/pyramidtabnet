@@ -6,7 +6,7 @@ This directory contains data augmentation scripts for PyramidTabNet. An input di
 ### K-Means Clustering
 - We cluster the input images to patch (from the training set) as well as table images (to patch onto the training images) collected from external sources as they make patching more consistent and reduces variancy, *i.e. a document without any colored tables may get patched with a colored one, leading to undesired learnings by the model.*
 
-You can cluster data by executing `clusters.py`. Example usage:
+- You can cluster data by executing `clusters.py`. Example usage:
 
     ```python
     python augmentation/clusters.py --f path/to/images/to/cluster \

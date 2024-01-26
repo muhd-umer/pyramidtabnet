@@ -175,7 +175,7 @@ _Note: FinTabNet fine-tuned model is for cell-detection._
 
 Resolve it by passing in the correct command line argument for `--config-file`.
 
-## Cite as
+## BibTeX
 If you find this work useful for your research, please cite our paper:
 
 ```
